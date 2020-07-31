@@ -1,6 +1,13 @@
 const buttonPlay = document.querySelector(".button-play");
+const buttonShuffle = document.querySelector(".button-shuffle");
+let deck: deck;
+let user1: user;
+buttonPlay.addEventListener("click", async (e) => {
+  deck = await fetchData<deck>(
+    "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
+  );
+  user1 = new user();
 
-buttonPlay.addEventListener("click", (e) => {
   document
     .querySelector(".game-container")
     .classList.replace("game-container--hidden", "game-container--show");
@@ -8,3 +15,56 @@ buttonPlay.addEventListener("click", (e) => {
     .querySelector(".start-container")
     .classList.replace("start-container--show", "start-container--hidden");
 });
+
+buttonShuffle.addEventListener("click", async (e) => {
+  let drawCard = await fetchData<drawCard>(
+    `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=1`
+  );
+  if (user1.cardList == null) {
+    user1.cardList = new Array<card>(0);
+  }
+  user1.cardList.push(drawCard.cards[0]);
+  console.log(user1);
+});
+
+async function fetchData<T>(url: string): Promise<T> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(response.statusText);
+  }
+  const data = await (response.json() as Promise<T>);
+  return data;
+}
+
+interface deck {
+  success: boolean;
+  deck_id: string;
+  shuffled: boolean;
+  remaining: number;
+}
+
+interface drawCard {
+  success: boolean;
+  deck_id: string;
+  remaining: number;
+  cards: Array<card>;
+}
+
+interface card {
+  code: string;
+  image: string;
+  images: images;
+  suit: string;
+  value: string;
+}
+
+interface images {
+  png: string;
+  svg: string;
+}
+
+class user {
+  name: string;
+  score: number;
+  cardList: Array<card>;
+}
