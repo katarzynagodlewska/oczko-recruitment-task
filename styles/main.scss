@@ -1,3 +1,17 @@
 .game-container {
-    display: none;
+    &--show {
+        display: block;
+    }
+    &--hidden {
+        display: none;
+    }
+}
+
+.start-container {
+    &--show {
+        display: block;
+    }
+    &--hidden {
+        display: none;
+    }
 }
