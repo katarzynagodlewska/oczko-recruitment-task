@@ -68,7 +68,16 @@ buttonShuffle.addEventListener("click", function (e) { return __awaiter(_this, v
                 }
                 drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
                 user1.cardList.push(drawCard.cards[0]);
-                console.log(user1);
+                user1.score = user1.cardList
+                    .map(function (a) { return a.points; })
+                    .reduce(function (a, b) {
+                    return a + b;
+                });
+                if (user1.score == 21) {
+                }
+                else if (user1.score > 21) {
+                }
+                console.log(user1.score);
                 return [2 /*return*/];
         }
     });

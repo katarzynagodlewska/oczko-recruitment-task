@@ -26,7 +26,16 @@ buttonShuffle.addEventListener("click", async (e) => {
 
   drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
   user1.cardList.push(drawCard.cards[0]);
-  console.log(user1);
+
+  user1.score = user1.cardList
+    .map((a) => a.points)
+    .reduce(function (a, b) {
+      return a + b;
+    });
+  if (user1.score == 21) {
+  } else if (user1.score > 21) {
+  }
+  console.log(user1.score);
 });
 
 async function fetchData<T>(url: string): Promise<T> {
