@@ -38,15 +38,64 @@ var _this = this;
 var buttonPlay = document.querySelector(".button-play");
 var buttonShuffle = document.querySelector(".button-shuffle");
 var buttonNewGame = document.querySelector(".button-new-game");
+var startGameForGroup = document.querySelector(".button-playGroups");
+var form = document.querySelector(".usernameForm");
 var deck;
-var user1;
+var currentUser;
+var userCounter = 0;
+var users = new Array(0);
+form.onsubmit = function (e) {
+    e.preventDefault();
+    var formData = new FormData(form);
+    var getAll = formData.getAll("textInput");
+    var lastElement = getAll[getAll.length - 1];
+    console.log(getAll);
+    console.log(lastElement);
+    var newElement = document.createElement("input");
+    newElement.setAttribute("type", "input");
+    newElement.className = "input-name";
+    newElement.name = "textInput";
+    form.appendChild(newElement);
+};
+//TODO play for group
+startGameForGroup.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
+    var formData, userNames, i, newUser;
+    return __generator(this, function (_a) {
+        formData = new FormData(form);
+        userNames = formData.getAll("textInput").filter(function (userName) {
+            return userName != "";
+        });
+        for (i = 0; i < userNames.length; i++) {
+            newUser = new user(userNames[i]);
+            users.push(newUser);
+        }
+        document
+            .querySelector(".game-container")
+            .classList.replace("game-container--hidden", "game-container--show");
+        document
+            .querySelector(".start-container")
+            .classList.replace("start-container--show", "start-container--hidden");
+        //TODO
+        do {
+            // trzeba miec jakis counter current usera
+            //jeśli dojdzie do ostatiego to counter sie zeruje
+            //4 graczy 0 -> 1 -> 2 -> 3 -> 0-> 1 -> 2
+        } while (users.some(function (user) {
+            return user.userState == userStates.won;
+        }) ||
+            users.filter(function (user) {
+                return user.userState != userStates.loose;
+            }).length == 0);
+        return [2 /*return*/];
+    });
+}); });
 buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")];
             case 1:
                 deck = _a.sent();
-                user1 = new user();
+                currentUser = new user("test");
                 document
                     .querySelector(".game-container")
                     .classList.replace("game-container--hidden", "game-container--show");
@@ -64,22 +113,22 @@ buttonShuffle.addEventListener("click", function (e) { return __awaiter(_this, v
             case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/" + deck.deck_id + "/draw/?count=1")];
             case 1:
                 drawCard = _a.sent();
-                if (user1.cardList == null) {
-                    user1.cardList = new Array(0);
+                if (currentUser.cardList == null) {
+                    currentUser.cardList = new Array(0);
                 }
                 drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
-                user1.cardList.push(drawCard.cards[0]);
-                user1.score = user1.cardList
+                currentUser.cardList.push(drawCard.cards[0]);
+                currentUser.score = currentUser.cardList
                     .map(function (a) { return a.points; })
                     .reduce(function (a, b) {
                     return a + b;
                 });
-                if (user1.score == 21) {
+                if (currentUser.score == 21) {
                     finishGame("You won");
                     console.log("Wygrałeś ");
                 }
-                else if (user1.score > 21) {
-                    if (user1.cardList.filter(function (card) {
+                else if (currentUser.score > 21) {
+                    if (currentUser.cardList.filter(function (card) {
                         return card.value == "ACE";
                     }).length == 2) {
                         finishGame("You won");
@@ -99,7 +148,7 @@ buttonNewGame.addEventListener("click", function (e) {
         .classList.replace("start-container--hidden", "start-container--show");
 });
 function finishGame(message) {
-    user1 = null;
+    currentUser = null;
     deck = null;
     document
         .querySelector(".game-container")
@@ -155,8 +204,19 @@ function getCardPointsForGame(value) {
     return points;
 }
 var user = /** @class */ (function () {
-    function user() {
+    function user(name) {
+        this.name = name;
+        this.score = 0;
+        this.cardList = new Array(0);
+        this.userState = userStates.active;
     }
     return user;
 }());
+var userStates;
+(function (userStates) {
+    userStates[userStates["active"] = 1] = "active";
+    userStates[userStates["waiting"] = 2] = "waiting";
+    userStates[userStates["loose"] = 3] = "loose";
+    userStates[userStates["won"] = 4] = "won";
+})(userStates || (userStates = {}));
 //# sourceMappingURL=main.js.map

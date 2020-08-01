@@ -1,13 +1,69 @@
 const buttonPlay = document.querySelector(".button-play");
 const buttonShuffle = document.querySelector(".button-shuffle");
 const buttonNewGame = document.querySelector(".button-new-game");
+const startGameForGroup = document.querySelector(".button-playGroups");
+const form: HTMLFormElement = document.querySelector(".usernameForm");
+
 let deck: deck;
-let user1: user;
+let currentUser: user;
+let userCounter: number = 0;
+let users: Array<user> = new Array<user>(0);
+
+form.onsubmit = (e) => {
+  e.preventDefault();
+  const formData = new FormData(form);
+  const getAll = formData.getAll("textInput");
+  const lastElement = getAll[getAll.length - 1] as string;
+
+  console.log(getAll);
+  console.log(lastElement);
+
+  var newElement = document.createElement("input");
+  newElement.setAttribute("type", "input");
+  newElement.className = "input-name";
+  newElement.name = "textInput";
+
+  form.appendChild(newElement);
+};
+
+//TODO play for group
+startGameForGroup.addEventListener("click", async (e) => {
+  const formData = new FormData(form);
+  const userNames = formData.getAll("textInput").filter((userName) => {
+    return userName != "";
+  });
+
+  for (var i = 0; i < userNames.length; i++) {
+    const newUser = new user(userNames[i] as string);
+    users.push(newUser);
+  }
+
+  document
+    .querySelector(".game-container")
+    .classList.replace("game-container--hidden", "game-container--show");
+  document
+    .querySelector(".start-container")
+    .classList.replace("start-container--show", "start-container--hidden");
+  //TODO
+  do {
+    // trzeba miec jakis counter current usera
+    //jeśli dojdzie do ostatiego to counter sie zeruje
+    //4 graczy 0 -> 1 -> 2 -> 3 -> 0-> 1 -> 2
+  } while (
+    users.some((user) => {
+      return user.userState == userStates.won;
+    }) ||
+    users.filter((user) => {
+      return user.userState != userStates.loose;
+    }).length == 0
+  );
+});
+
 buttonPlay.addEventListener("click", async (e) => {
   deck = await fetchData<deck>(
     "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
   );
-  user1 = new user();
+  currentUser = new user("test");
 
   document
     .querySelector(".game-container")
@@ -21,24 +77,24 @@ buttonShuffle.addEventListener("click", async (e) => {
   let drawCard = await fetchData<drawCard>(
     `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=1`
   );
-  if (user1.cardList == null) {
-    user1.cardList = new Array<card>(0);
+  if (currentUser.cardList == null) {
+    currentUser.cardList = new Array<card>(0);
   }
 
   drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
-  user1.cardList.push(drawCard.cards[0]);
+  currentUser.cardList.push(drawCard.cards[0]);
 
-  user1.score = user1.cardList
+  currentUser.score = currentUser.cardList
     .map((a) => a.points)
     .reduce(function (a, b) {
       return a + b;
     });
-  if (user1.score == 21) {
+  if (currentUser.score == 21) {
     finishGame("You won");
     console.log("Wygrałeś ");
-  } else if (user1.score > 21) {
+  } else if (currentUser.score > 21) {
     if (
-      user1.cardList.filter((card) => {
+      currentUser.cardList.filter((card) => {
         return card.value == "ACE";
       }).length == 2
     ) {
@@ -59,7 +115,7 @@ buttonNewGame.addEventListener("click", (e) => {
 });
 
 function finishGame(message: string) {
-  user1 = null;
+  currentUser = null;
   deck = null;
   document
     .querySelector(".game-container")
@@ -137,7 +193,21 @@ interface images {
 }
 
 class user {
+  constructor(name: string) {
+    this.name = name;
+    this.score = 0;
+    this.cardList = new Array<card>(0);
+    this.userState = userStates.active;
+  }
   name: string;
   score: number;
   cardList: Array<card>;
+  userState: userStates;
+}
+
+enum userStates {
+  active = 1,
+  waiting,
+  loose,
+  won,
 }
