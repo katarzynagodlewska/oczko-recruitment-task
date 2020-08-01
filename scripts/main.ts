@@ -1,5 +1,6 @@
 const buttonPlay = document.querySelector(".button-play");
 const buttonShuffle = document.querySelector(".button-shuffle");
+const buttonNewGame = document.querySelector(".button-new-game");
 let deck: deck;
 let user1: user;
 buttonPlay.addEventListener("click", async (e) => {
@@ -33,10 +34,43 @@ buttonShuffle.addEventListener("click", async (e) => {
       return a + b;
     });
   if (user1.score == 21) {
+    finishGame("You won");
+    console.log("Wygrałeś ");
   } else if (user1.score > 21) {
+    if (
+      user1.cardList.filter((card) => {
+        return card.value == "ACE";
+      }).length == 2
+    ) {
+      finishGame("You won");
+    }
+    finishGame("You lose");
   }
-  console.log(user1.score);
 });
+
+buttonNewGame.addEventListener("click", (e) => {
+  document
+    .querySelector(".message-container")
+    .classList.replace("message-container--show", "message-container--hidden");
+
+  document
+    .querySelector(".start-container")
+    .classList.replace("start-container--hidden", "start-container--show");
+});
+
+function finishGame(message: string) {
+  user1 = null;
+  deck = null;
+  document
+    .querySelector(".game-container")
+    .classList.replace("game-container--show", "game-container--hidden");
+
+  document
+    .querySelector(".message-container")
+    .classList.replace("message-container--hidden", "message-container--show");
+
+  document.querySelector(".message").innerHTML = message;
+}
 
 async function fetchData<T>(url: string): Promise<T> {
   const response = await fetch(url);

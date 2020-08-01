@@ -13,3 +13,11 @@
 .start-container--hidden {
   display: none;
 }
+
+.message-container--show {
+  display: block;
+}
+
+.message-container--hidden {
+  display: none;
+}
