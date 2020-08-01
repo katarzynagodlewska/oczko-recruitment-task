@@ -23,6 +23,8 @@ buttonShuffle.addEventListener("click", async (e) => {
   if (user1.cardList == null) {
     user1.cardList = new Array<card>(0);
   }
+
+  drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
   user1.cardList.push(drawCard.cards[0]);
   console.log(user1);
 });
@@ -34,6 +36,33 @@ async function fetchData<T>(url: string): Promise<T> {
   }
   const data = await (response.json() as Promise<T>);
   return data;
+}
+
+function getCardPointsForGame(value: string): number {
+  let points: number = 0;
+  switch (value) {
+    case "ACE": {
+      points = 11;
+      break;
+    }
+    case "KING": {
+      points = 4;
+      break;
+    }
+    case "QUEEN": {
+      points = 3;
+      break;
+    }
+    case "JACK": {
+      points = 2;
+      break;
+    }
+    default: {
+      points = +value;
+      break;
+    }
+  }
+  return points;
 }
 
 interface deck {
@@ -56,6 +85,7 @@ interface card {
   images: images;
   suit: string;
   value: string;
+  points: number;
 }
 
 interface images {

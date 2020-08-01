@@ -66,6 +66,7 @@ buttonShuffle.addEventListener("click", function (e) { return __awaiter(_this, v
                 if (user1.cardList == null) {
                     user1.cardList = new Array(0);
                 }
+                drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
                 user1.cardList.push(drawCard.cards[0]);
                 console.log(user1);
                 return [2 /*return*/];
@@ -90,6 +91,32 @@ function fetchData(url) {
             }
         });
     });
+}
+function getCardPointsForGame(value) {
+    var points = 0;
+    switch (value) {
+        case "ACE": {
+            points = 11;
+            break;
+        }
+        case "KING": {
+            points = 4;
+            break;
+        }
+        case "QUEEN": {
+            points = 3;
+            break;
+        }
+        case "JACK": {
+            points = 2;
+            break;
+        }
+        default: {
+            points = +value;
+            break;
+        }
+    }
+    return points;
 }
 var user = /** @class */ (function () {
     function user() {
