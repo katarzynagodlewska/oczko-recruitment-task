@@ -121,6 +121,8 @@ buttonShuffle.addEventListener("click", async (e) => {
     .reduce(function (a, b) {
       return a + b;
     });
+  document.querySelector(".score-number").innerHTML = (currentUser.score.toString());
+
   if (currentUser.score == 21) {
     finishGame("You won");
     console.log("Wygrałeś ");
