@@ -1,8 +1,12 @@
 const buttonPlay = document.querySelector(".button-play");
 const buttonShuffle = document.querySelector(".button-shuffle");
 const buttonNewGame = document.querySelector(".button-new-game");
-const startGameForGroup = document.querySelector(".button-playGroups");
-const form: HTMLFormElement = document.querySelector(".usernameForm");
+const startGameForGroup = document.querySelector(".button-start-play-group");
+const buttonPlayGroup = document.querySelector(".button-play-group");
+const buttonBack = document.querySelector(".button-back");
+const buttonSubmit = document.querySelector(".button-sumbit");
+
+const form: HTMLFormElement = document.querySelector(".username-form");
 
 let deck: deck;
 let currentUser: user;
@@ -23,7 +27,7 @@ form.onsubmit = (e) => {
   newElement.className = "input-name";
   newElement.name = "textInput";
 
-  form.appendChild(newElement);
+  form.insertBefore(newElement, buttonSubmit);
 };
 
 //TODO play for group
@@ -71,6 +75,34 @@ buttonPlay.addEventListener("click", async (e) => {
   document
     .querySelector(".start-container")
     .classList.replace("start-container--show", "start-container--hidden");
+});
+
+buttonPlayGroup.addEventListener("click", async (e) => {
+  document
+    .querySelector(".start-container")
+    .classList.replace("start-container--show", "start-container--hidden");
+  document
+    .querySelector(".form-container")
+    .classList.replace("form-container--hidden", "form-container--show");
+});
+
+buttonBack.addEventListener("click", async (e) => {
+  document
+    .querySelector(".form-container")
+    .classList.replace("form-container--show", "form-container--hidden");
+  document
+    .querySelector(".start-container")
+    .classList.replace("start-container--hidden", "start-container--show");
+
+  const removeElements = (elms) => elms.forEach((el) => el.remove());
+  removeElements(form.querySelectorAll(".input-name"));
+
+  var newElement = document.createElement("input");
+  newElement.setAttribute("type", "input");
+  newElement.className = "input-name";
+  newElement.name = "textInput";
+
+  form.insertBefore(newElement, buttonSubmit);
 });
 
 buttonShuffle.addEventListener("click", async (e) => {

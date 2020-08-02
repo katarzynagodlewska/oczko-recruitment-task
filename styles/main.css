@@ -1,3 +1,15 @@
+html {
+  font-size: 16px;
+}
+
+.form-container--hidden {
+  display: none;
+}
+
+.form-container--show {
+  display: block;
+}
+
 .game-container--show {
   display: block;
 }
@@ -20,4 +32,9 @@
 
 .message-container--hidden {
   display: none;
+}
+
+.deck-svg {
+  display: block;
+  height: 12rem;
 }

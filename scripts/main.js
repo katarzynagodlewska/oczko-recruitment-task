@@ -38,8 +38,11 @@ var _this = this;
 var buttonPlay = document.querySelector(".button-play");
 var buttonShuffle = document.querySelector(".button-shuffle");
 var buttonNewGame = document.querySelector(".button-new-game");
-var startGameForGroup = document.querySelector(".button-playGroups");
-var form = document.querySelector(".usernameForm");
+var startGameForGroup = document.querySelector(".button-start-play-group");
+var buttonPlayGroup = document.querySelector(".button-play-group");
+var buttonBack = document.querySelector(".button-back");
+var buttonSubmit = document.querySelector(".button-sumbit");
+var form = document.querySelector(".username-form");
 var deck;
 var currentUser;
 var userCounter = 0;
@@ -55,7 +58,7 @@ form.onsubmit = function (e) {
     newElement.setAttribute("type", "input");
     newElement.className = "input-name";
     newElement.name = "textInput";
-    form.appendChild(newElement);
+    form.insertBefore(newElement, buttonSubmit);
 };
 //TODO play for group
 startGameForGroup.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
@@ -104,6 +107,36 @@ buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void
                     .classList.replace("start-container--show", "start-container--hidden");
                 return [2 /*return*/];
         }
+    });
+}); });
+buttonPlayGroup.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        document
+            .querySelector(".start-container")
+            .classList.replace("start-container--show", "start-container--hidden");
+        document
+            .querySelector(".form-container")
+            .classList.replace("form-container--hidden", "form-container--show");
+        return [2 /*return*/];
+    });
+}); });
+buttonBack.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
+    var removeElements, newElement;
+    return __generator(this, function (_a) {
+        document
+            .querySelector(".form-container")
+            .classList.replace("form-container--show", "form-container--hidden");
+        document
+            .querySelector(".start-container")
+            .classList.replace("start-container--hidden", "start-container--show");
+        removeElements = function (elms) { return elms.forEach(function (el) { return el.remove(); }); };
+        removeElements(form.querySelectorAll(".input-name"));
+        newElement = document.createElement("input");
+        newElement.setAttribute("type", "input");
+        newElement.className = "input-name";
+        newElement.name = "textInput";
+        form.insertBefore(newElement, buttonSubmit);
+        return [2 /*return*/];
     });
 }); });
 buttonShuffle.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {

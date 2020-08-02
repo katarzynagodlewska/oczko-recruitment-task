@@ -1,3 +1,14 @@
+html {
+  font-size: 16px;
+}
+.form-container {
+  &--hidden {
+    display: none;
+  }
+  &--show {
+    display: block;
+  }
+}
 .game-container {
   &--show {
     display: block;
@@ -23,4 +34,9 @@
   &--hidden {
     display: none;
   }
+}
+
+.deck-svg {
+  display: block;
+  height: 12rem;
 }
