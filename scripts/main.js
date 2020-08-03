@@ -40,7 +40,7 @@ var buttonShuffle = document.querySelector(".button-shuffle");
 var buttonNewGame = document.querySelector(".button-new-game");
 var startGameForGroup = document.querySelector(".button-start-play-group");
 var buttonPlayGroup = document.querySelector(".button-play-group");
-var buttonBack = document.querySelector(".button-back");
+var buttonBacks = document.querySelectorAll(".button-back");
 var buttonSubmit = document.querySelector(".button-sumbit");
 var buttonStop = document.querySelector(".button-stop");
 var form = document.querySelector(".username-form");
@@ -69,17 +69,15 @@ startGameForGroup.addEventListener("click", function (e) { return __awaiter(_thi
         userNames = formData.getAll("textInput").filter(function (userName) {
             return userName != "";
         });
+        clearUsernamesForm();
         for (i = 0; i < userNames.length; i++) {
             newUser = new user(userNames[i]);
             users.push(newUser);
         }
         buttonShuffle.disabled = false;
-        document
-            .querySelector(".game-container")
-            .classList.replace("game-container--hidden", "game-container--show");
-        document
-            .querySelector(".start-container")
-            .classList.replace("start-container--show", "start-container--hidden");
+        setHidden(".start-container", true);
+        setHidden(".game-container", false);
+        setHidden(".form-container", true);
         //TODO
         do {
             // trzeba miec jakis counter current usera
@@ -102,15 +100,9 @@ buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void
                 deck = _a.sent();
                 currentUser = new user("test");
                 removeElements(document.querySelectorAll(".card-img"));
-                document
-                    .querySelector(".game-container")
-                    .classList.replace("game-container--hidden", "game-container--show");
-                document
-                    .querySelector(".start-container")
-                    .classList.replace("start-container--show", "start-container--hidden");
-                document
-                    .querySelector(".message-container")
-                    .classList.replace("message-container--show", "message-container--hidden");
+                setHidden(".message-container", true);
+                setHidden(".start-container", true);
+                setHidden(".game-container", false);
                 document.querySelector(".score-number").innerHTML = "0";
                 buttonShuffle.disabled = false;
                 buttonStop.hidden = true;
@@ -120,33 +112,36 @@ buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void
 }); });
 buttonPlayGroup.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
-        document
-            .querySelector(".start-container")
-            .classList.replace("start-container--show", "start-container--hidden");
-        document
-            .querySelector(".form-container")
-            .classList.replace("form-container--hidden", "form-container--show");
+        setHidden(".start-container", true);
+        setHidden(".form-container", false);
         return [2 /*return*/];
     });
 }); });
-buttonBack.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
-    var newElement;
-    return __generator(this, function (_a) {
-        document
-            .querySelector(".form-container")
-            .classList.replace("form-container--show", "form-container--hidden");
-        document
-            .querySelector(".start-container")
-            .classList.replace("start-container--hidden", "start-container--show");
-        removeElements(form.querySelectorAll(".input-name"));
-        newElement = document.createElement("input");
-        newElement.setAttribute("type", "input");
-        newElement.className = "input-name";
-        newElement.name = "textInput";
-        form.insertBefore(newElement, buttonSubmit);
-        return [2 /*return*/];
-    });
-}); });
+buttonBacks.forEach(function (buttonBack) {
+    currentUser = null;
+    deck = null;
+    buttonBack.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
+        return __generator(this, function (_a) {
+            setHidden(".form-container", true);
+            setHidden(".start-container", false);
+            setHidden(".game-container", true);
+            removeElements(document.querySelectorAll(".card-img"));
+            clearUsernamesForm();
+            return [2 /*return*/];
+        });
+    }); });
+});
+function clearUsernamesForm() {
+    removeElements(form.querySelectorAll(".input-name"));
+    var newElement = document.createElement("input");
+    newElement.setAttribute("type", "input");
+    newElement.className = "input-name";
+    newElement.name = "textInput";
+    form.insertBefore(newElement, buttonSubmit);
+}
+function setHidden(name, hidden) {
+    document.querySelector(name).hidden = hidden;
+}
 function removeElements(elements) {
     elements.forEach(function (el) { return el.remove(); });
 }
@@ -201,19 +196,13 @@ function displayUserCard(user) {
     });
 }
 buttonNewGame.addEventListener("click", function (e) {
-    document
-        .querySelector(".game-container")
-        .classList.replace("game-container--show", "game-container--hidden");
-    document
-        .querySelector(".start-container")
-        .classList.replace("start-container--hidden", "start-container--show");
+    setHidden(".start-container", false);
+    setHidden(".game-container", true);
 });
 function finishGame(message) {
     currentUser = null;
     deck = null;
-    document
-        .querySelector(".message-container")
-        .classList.replace("message-container--hidden", "message-container--show");
+    setHidden(".message-container", false);
     document.querySelector(".message").innerHTML = message;
     buttonShuffle.disabled = true;
 }

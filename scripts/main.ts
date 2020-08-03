@@ -3,7 +3,7 @@ const buttonShuffle = document.querySelector(".button-shuffle");
 const buttonNewGame = document.querySelector(".button-new-game");
 const startGameForGroup = document.querySelector(".button-start-play-group");
 const buttonPlayGroup = document.querySelector(".button-play-group");
-const buttonBack = document.querySelector(".button-back");
+const buttonBacks = document.querySelectorAll(".button-back");
 const buttonSubmit = document.querySelector(".button-sumbit");
 const buttonStop = document.querySelector(".button-stop");
 
@@ -38,18 +38,17 @@ startGameForGroup.addEventListener("click", async (e) => {
     return userName != "";
   });
 
+  clearUsernamesForm();
+
   for (var i = 0; i < userNames.length; i++) {
     const newUser = new user(userNames[i] as string);
     users.push(newUser);
   }
   (buttonShuffle as HTMLInputElement).disabled = false;
+  setHidden(".start-container", true);
+  setHidden(".game-container", false);
+  setHidden(".form-container", true);
 
-  document
-    .querySelector(".game-container")
-    .classList.replace("game-container--hidden", "game-container--show");
-  document
-    .querySelector(".start-container")
-    .classList.replace("start-container--show", "start-container--hidden");
   //TODO
   do {
     // trzeba miec jakis counter current usera
@@ -72,15 +71,9 @@ buttonPlay.addEventListener("click", async (e) => {
   currentUser = new user("test");
   removeElements(document.querySelectorAll(".card-img"));
 
-  document
-    .querySelector(".game-container")
-    .classList.replace("game-container--hidden", "game-container--show");
-  document
-    .querySelector(".start-container")
-    .classList.replace("start-container--show", "start-container--hidden");
-  document
-    .querySelector(".message-container")
-    .classList.replace("message-container--show", "message-container--hidden");
+  setHidden(".message-container", true);
+  setHidden(".start-container", true);
+  setHidden(".game-container", false);
 
   document.querySelector(".score-number").innerHTML = "0";
 
@@ -89,22 +82,25 @@ buttonPlay.addEventListener("click", async (e) => {
 });
 
 buttonPlayGroup.addEventListener("click", async (e) => {
-  document
-    .querySelector(".start-container")
-    .classList.replace("start-container--show", "start-container--hidden");
-  document
-    .querySelector(".form-container")
-    .classList.replace("form-container--hidden", "form-container--show");
+  setHidden(".start-container", true);
+  setHidden(".form-container", false);
 });
 
-buttonBack.addEventListener("click", async (e) => {
-  document
-    .querySelector(".form-container")
-    .classList.replace("form-container--show", "form-container--hidden");
-  document
-    .querySelector(".start-container")
-    .classList.replace("start-container--hidden", "start-container--show");
+buttonBacks.forEach((buttonBack) => {
+  currentUser = null;
+  deck = null;
 
+  buttonBack.addEventListener("click", async (e) => {
+    setHidden(".form-container", true);
+    setHidden(".start-container", false);
+    setHidden(".game-container", true);
+
+    removeElements(document.querySelectorAll(".card-img"));
+    clearUsernamesForm();
+  });
+});
+
+function clearUsernamesForm() {
   removeElements(form.querySelectorAll(".input-name"));
 
   var newElement = document.createElement("input");
@@ -113,7 +109,11 @@ buttonBack.addEventListener("click", async (e) => {
   newElement.name = "textInput";
 
   form.insertBefore(newElement, buttonSubmit);
-});
+}
+
+function setHidden(name: string, hidden: boolean) {
+  (document.querySelector(name) as HTMLScriptElement).hidden = hidden;
+}
 
 function removeElements(elements: NodeListOf<Element>) {
   elements.forEach((el) => el.remove());
@@ -168,22 +168,14 @@ async function displayUserCard(user: user) {
 }
 
 buttonNewGame.addEventListener("click", (e) => {
-  document
-    .querySelector(".game-container")
-    .classList.replace("game-container--show", "game-container--hidden");
-
-  document
-    .querySelector(".start-container")
-    .classList.replace("start-container--hidden", "start-container--show");
+  setHidden(".start-container", false);
+  setHidden(".game-container", true);
 });
 
 function finishGame(message: string) {
   currentUser = null;
   deck = null;
-
-  document
-    .querySelector(".message-container")
-    .classList.replace("message-container--hidden", "message-container--show");
+  setHidden(".message-container", false);
 
   document.querySelector(".message").innerHTML = message;
 

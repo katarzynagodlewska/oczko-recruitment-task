@@ -2,38 +2,14 @@ html {
   font-size: 16px;
 }
 .form-container {
-  &--hidden {
-    display: none;
-  }
-  &--show {
-    display: block;
-  }
 }
 .game-container {
-  &--show {
-    display: block;
-  }
-  &--hidden {
-    display: none;
-  }
 }
 
 .start-container {
-  &--show {
-    display: block;
-  }
-  &--hidden {
-    display: none;
-  }
 }
 
 .message-container {
-  &--show {
-    display: block;
-  }
-  &--hidden {
-    display: none;
-  }
 }
 
 .deck-svg {
