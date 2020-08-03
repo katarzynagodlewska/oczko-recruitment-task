@@ -75,6 +75,8 @@ buttonPlay.addEventListener("click", async (e) => {
   document
     .querySelector(".start-container")
     .classList.replace("start-container--show", "start-container--hidden");
+
+  document.querySelector(".score-number").innerHTML = "0";
 });
 
 buttonPlayGroup.addEventListener("click", async (e) => {
@@ -94,7 +96,6 @@ buttonBack.addEventListener("click", async (e) => {
     .querySelector(".start-container")
     .classList.replace("start-container--hidden", "start-container--show");
 
-  const removeElements = (elms) => elms.forEach((el) => el.remove());
   removeElements(form.querySelectorAll(".input-name"));
 
   var newElement = document.createElement("input");
@@ -104,6 +105,10 @@ buttonBack.addEventListener("click", async (e) => {
 
   form.insertBefore(newElement, buttonSubmit);
 });
+
+function removeElements(elements: NodeListOf<Element>) {
+  elements.forEach((el) => el.remove());
+}
 
 buttonShuffle.addEventListener("click", async (e) => {
   let drawCard = await fetchData<drawCard>(
@@ -121,7 +126,11 @@ buttonShuffle.addEventListener("click", async (e) => {
     .reduce(function (a, b) {
       return a + b;
     });
-  document.querySelector(".score-number").innerHTML = (currentUser.score.toString());
+  document.querySelector(
+    ".score-number"
+  ).innerHTML = currentUser.score.toString();
+
+  displayUserCard(currentUser);
 
   if (currentUser.score == 21) {
     finishGame("You won");
@@ -137,6 +146,16 @@ buttonShuffle.addEventListener("click", async (e) => {
     finishGame("You lose");
   }
 });
+
+async function displayUserCard(user: user) {
+  removeElements(document.querySelectorAll(".card-img"));
+  for (let i = 0; i < user.cardList.length; i++) {
+    let newImgElement = document.createElement("img");
+    newImgElement.src = user.cardList[i].image;
+    newImgElement.className = "card-img";
+    document.getElementById("card-list").appendChild(newImgElement);
+  }
+}
 
 buttonNewGame.addEventListener("click", (e) => {
   document

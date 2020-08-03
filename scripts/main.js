@@ -105,6 +105,7 @@ buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void
                 document
                     .querySelector(".start-container")
                     .classList.replace("start-container--show", "start-container--hidden");
+                document.querySelector(".score-number").innerHTML = "0";
                 return [2 /*return*/];
         }
     });
@@ -121,7 +122,7 @@ buttonPlayGroup.addEventListener("click", function (e) { return __awaiter(_this,
     });
 }); });
 buttonBack.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
-    var removeElements, newElement;
+    var newElement;
     return __generator(this, function (_a) {
         document
             .querySelector(".form-container")
@@ -129,7 +130,6 @@ buttonBack.addEventListener("click", function (e) { return __awaiter(_this, void
         document
             .querySelector(".start-container")
             .classList.replace("start-container--hidden", "start-container--show");
-        removeElements = function (elms) { return elms.forEach(function (el) { return el.remove(); }); };
         removeElements(form.querySelectorAll(".input-name"));
         newElement = document.createElement("input");
         newElement.setAttribute("type", "input");
@@ -139,6 +139,9 @@ buttonBack.addEventListener("click", function (e) { return __awaiter(_this, void
         return [2 /*return*/];
     });
 }); });
+function removeElements(elements) {
+    elements.forEach(function (el) { return el.remove(); });
+}
 buttonShuffle.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
     var drawCard;
     return __generator(this, function (_a) {
@@ -156,7 +159,8 @@ buttonShuffle.addEventListener("click", function (e) { return __awaiter(_this, v
                     .reduce(function (a, b) {
                     return a + b;
                 });
-                document.querySelector(".score-number").innerHTML = (currentUser.score.toString());
+                document.querySelector(".score-number").innerHTML = currentUser.score.toString();
+                displayUserCard(currentUser);
                 if (currentUser.score == 21) {
                     finishGame("You won");
                     console.log("Wygrałeś ");
@@ -173,6 +177,21 @@ buttonShuffle.addEventListener("click", function (e) { return __awaiter(_this, v
         }
     });
 }); });
+function displayUserCard(user) {
+    return __awaiter(this, void 0, void 0, function () {
+        var i, newImgElement;
+        return __generator(this, function (_a) {
+            removeElements(document.querySelectorAll(".card-img"));
+            for (i = 0; i < user.cardList.length; i++) {
+                newImgElement = document.createElement("img");
+                newImgElement.src = user.cardList[i].image;
+                newImgElement.className = "card-img";
+                document.getElementById("card-list").appendChild(newImgElement);
+            }
+            return [2 /*return*/];
+        });
+    });
+}
 buttonNewGame.addEventListener("click", function (e) {
     document
         .querySelector(".message-container")
