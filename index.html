@@ -24,6 +24,10 @@
     </div>
 
     <div class="game-container game-container--hidden">
+      <div class="message-container message-container--hidden">
+        <span class="message"></span>
+        <button class="button-new-game">Start new game</button>
+      </div>
       <svg
         class="deck-svg"
         viewBox="0 0 140 190"
@@ -124,19 +128,13 @@
       </svg>
       <div>
         <button class="button-shuffle">GET A CARD</button>
-        <button class="button-shuffle">STOP</button>
-      </div>
-      <div>
-        <button class="button-shuffle">END TURN</button>
+        <button class="button-stop">STOP</button>
       </div>
       <span>Score:</span>
       <span class="score-number"></span>
       <div class="card-list" id="card-list"></div>
     </div>
-    <div class="message-container message-container--hidden">
-      <span class="message"></span>
-      <button class="button-new-game">Start new game</button>
-    </div>
+
     <script src="scripts/main.js"></script>
   </body>
 </html>

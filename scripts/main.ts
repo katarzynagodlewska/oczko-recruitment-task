@@ -5,6 +5,7 @@ const startGameForGroup = document.querySelector(".button-start-play-group");
 const buttonPlayGroup = document.querySelector(".button-play-group");
 const buttonBack = document.querySelector(".button-back");
 const buttonSubmit = document.querySelector(".button-sumbit");
+const buttonStop = document.querySelector(".button-stop");
 
 const form: HTMLFormElement = document.querySelector(".username-form");
 
@@ -41,6 +42,7 @@ startGameForGroup.addEventListener("click", async (e) => {
     const newUser = new user(userNames[i] as string);
     users.push(newUser);
   }
+  (buttonShuffle as HTMLInputElement).disabled = false;
 
   document
     .querySelector(".game-container")
@@ -68,6 +70,7 @@ buttonPlay.addEventListener("click", async (e) => {
     "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
   );
   currentUser = new user("test");
+  removeElements(document.querySelectorAll(".card-img"));
 
   document
     .querySelector(".game-container")
@@ -75,8 +78,14 @@ buttonPlay.addEventListener("click", async (e) => {
   document
     .querySelector(".start-container")
     .classList.replace("start-container--show", "start-container--hidden");
+  document
+    .querySelector(".message-container")
+    .classList.replace("message-container--show", "message-container--hidden");
 
   document.querySelector(".score-number").innerHTML = "0";
+
+  (buttonShuffle as HTMLInputElement).disabled = false;
+  (buttonStop as HTMLInputElement).hidden = true;
 });
 
 buttonPlayGroup.addEventListener("click", async (e) => {
@@ -149,6 +158,7 @@ buttonShuffle.addEventListener("click", async (e) => {
 
 async function displayUserCard(user: user) {
   removeElements(document.querySelectorAll(".card-img"));
+
   for (let i = 0; i < user.cardList.length; i++) {
     let newImgElement = document.createElement("img");
     newImgElement.src = user.cardList[i].image;
@@ -159,8 +169,8 @@ async function displayUserCard(user: user) {
 
 buttonNewGame.addEventListener("click", (e) => {
   document
-    .querySelector(".message-container")
-    .classList.replace("message-container--show", "message-container--hidden");
+    .querySelector(".game-container")
+    .classList.replace("game-container--show", "game-container--hidden");
 
   document
     .querySelector(".start-container")
@@ -170,15 +180,14 @@ buttonNewGame.addEventListener("click", (e) => {
 function finishGame(message: string) {
   currentUser = null;
   deck = null;
-  document
-    .querySelector(".game-container")
-    .classList.replace("game-container--show", "game-container--hidden");
 
   document
     .querySelector(".message-container")
     .classList.replace("message-container--hidden", "message-container--show");
 
   document.querySelector(".message").innerHTML = message;
+
+  (buttonShuffle as HTMLInputElement).disabled = true;
 }
 
 async function fetchData<T>(url: string): Promise<T> {

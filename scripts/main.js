@@ -42,6 +42,7 @@ var startGameForGroup = document.querySelector(".button-start-play-group");
 var buttonPlayGroup = document.querySelector(".button-play-group");
 var buttonBack = document.querySelector(".button-back");
 var buttonSubmit = document.querySelector(".button-sumbit");
+var buttonStop = document.querySelector(".button-stop");
 var form = document.querySelector(".username-form");
 var deck;
 var currentUser;
@@ -72,6 +73,7 @@ startGameForGroup.addEventListener("click", function (e) { return __awaiter(_thi
             newUser = new user(userNames[i]);
             users.push(newUser);
         }
+        buttonShuffle.disabled = false;
         document
             .querySelector(".game-container")
             .classList.replace("game-container--hidden", "game-container--show");
@@ -99,13 +101,19 @@ buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void
             case 1:
                 deck = _a.sent();
                 currentUser = new user("test");
+                removeElements(document.querySelectorAll(".card-img"));
                 document
                     .querySelector(".game-container")
                     .classList.replace("game-container--hidden", "game-container--show");
                 document
                     .querySelector(".start-container")
                     .classList.replace("start-container--show", "start-container--hidden");
+                document
+                    .querySelector(".message-container")
+                    .classList.replace("message-container--show", "message-container--hidden");
                 document.querySelector(".score-number").innerHTML = "0";
+                buttonShuffle.disabled = false;
+                buttonStop.hidden = true;
                 return [2 /*return*/];
         }
     });
@@ -194,8 +202,8 @@ function displayUserCard(user) {
 }
 buttonNewGame.addEventListener("click", function (e) {
     document
-        .querySelector(".message-container")
-        .classList.replace("message-container--show", "message-container--hidden");
+        .querySelector(".game-container")
+        .classList.replace("game-container--show", "game-container--hidden");
     document
         .querySelector(".start-container")
         .classList.replace("start-container--hidden", "start-container--show");
@@ -204,12 +212,10 @@ function finishGame(message) {
     currentUser = null;
     deck = null;
     document
-        .querySelector(".game-container")
-        .classList.replace("game-container--show", "game-container--hidden");
-    document
         .querySelector(".message-container")
         .classList.replace("message-container--hidden", "message-container--show");
     document.querySelector(".message").innerHTML = message;
+    buttonShuffle.disabled = true;
 }
 function fetchData(url) {
     return __awaiter(this, void 0, void 0, function () {
