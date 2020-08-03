@@ -43,6 +43,7 @@ var buttonPlayGroup = document.querySelector(".button-play-group");
 var buttonBacks = document.querySelectorAll(".button-back");
 var buttonSubmit = document.querySelector(".button-sumbit");
 var buttonStop = document.querySelector(".button-stop");
+var buttonEndTurn = document.querySelector(".button-end-turn");
 var form = document.querySelector(".username-form");
 var deck;
 var currentUser;
@@ -65,49 +66,139 @@ form.onsubmit = function (e) {
 startGameForGroup.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
     var formData, userNames, i, newUser;
     return __generator(this, function (_a) {
-        formData = new FormData(form);
-        userNames = formData.getAll("textInput").filter(function (userName) {
-            return userName != "";
-        });
-        clearUsernamesForm();
-        for (i = 0; i < userNames.length; i++) {
-            newUser = new user(userNames[i]);
-            users.push(newUser);
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")];
+            case 1:
+                deck = _a.sent();
+                formData = new FormData(form);
+                userNames = formData.getAll("textInput").filter(function (userName) {
+                    return userName != "";
+                });
+                clearUsernamesForm();
+                for (i = 0; i < userNames.length; i++) {
+                    newUser = new user(userNames[i], i);
+                    users.push(newUser);
+                }
+                buttonShuffle.disabled = false;
+                buttonEndTurn.hidden = true;
+                setHidden(".start-container", true);
+                setHidden(".game-container", false);
+                setHidden(".form-container", true);
+                setHidden(".message-container", true);
+                currentUser = users[0];
+                initializeGameContainerForUser(currentUser);
+                buttonShuffle.addEventListener("click", methodToGetCardForGroupGame);
+                return [2 /*return*/];
         }
-        buttonShuffle.disabled = false;
-        setHidden(".start-container", true);
-        setHidden(".game-container", false);
-        setHidden(".form-container", true);
-        //TODO
-        do {
-            // trzeba miec jakis counter current usera
-            //jeśli dojdzie do ostatiego to counter sie zeruje
-            //4 graczy 0 -> 1 -> 2 -> 3 -> 0-> 1 -> 2
-        } while (users.some(function (user) {
-            return user.userState == userStates.won;
-        }) ||
-            users.filter(function (user) {
-                return user.userState != userStates.loose;
-            }).length == 0);
-        return [2 /*return*/];
     });
 }); });
+function initializeGameContainerForUser(user) {
+    document.querySelector(".score-number").innerHTML = user.score.toString();
+    document.querySelector(".username-field").innerHTML = user.name;
+    displayUserCard(user);
+}
 buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")];
             case 1:
                 deck = _a.sent();
-                currentUser = new user("test");
-                removeElements(document.querySelectorAll(".card-img"));
+                currentUser = new user("test", 0);
+                initializeGameContainerForUser(currentUser);
+                //removeElements(document.querySelectorAll(".card-img"));
                 setHidden(".message-container", true);
                 setHidden(".start-container", true);
                 setHidden(".game-container", false);
-                document.querySelector(".score-number").innerHTML = "0";
                 buttonShuffle.disabled = false;
                 buttonStop.hidden = true;
+                buttonEndTurn.hidden = true;
+                buttonShuffle.addEventListener("click", methodToGetCardForSingleGame);
                 return [2 /*return*/];
         }
+    });
+}); });
+function methodToGetCardForSingleGame() {
+    return __awaiter(this, void 0, void 0, function () {
+        var drawCard;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/" + deck.deck_id + "/draw/?count=1")];
+                case 1:
+                    drawCard = _a.sent();
+                    if (currentUser.cardList == null) {
+                        currentUser.cardList = new Array(0);
+                    }
+                    drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
+                    currentUser.cardList.push(drawCard.cards[0]);
+                    currentUser.score = currentUser.cardList
+                        .map(function (a) { return a.points; })
+                        .reduce(function (a, b) {
+                        return a + b;
+                    });
+                    initializeGameContainerForUser(currentUser);
+                    if (currentUser.score == 21) {
+                        finishGame("You won", true);
+                        console.log("Wygrałeś ");
+                    }
+                    else if (currentUser.score > 21) {
+                        if (currentUser.cardList.filter(function (card) {
+                            return card.value == "ACE";
+                        }).length == 2) {
+                            finishGame("You won", true);
+                        }
+                        finishGame("You lose", true);
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+function methodToGetCardForGroupGame() {
+    return __awaiter(this, void 0, void 0, function () {
+        var drawCard;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/" + deck.deck_id + "/draw/?count=1")];
+                case 1:
+                    drawCard = _a.sent();
+                    if (currentUser.cardList == null) {
+                        currentUser.cardList = new Array(0);
+                    }
+                    drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
+                    currentUser.cardList.push(drawCard.cards[0]);
+                    currentUser.score = currentUser.cardList
+                        .map(function (a) { return a.points; })
+                        .reduce(function (a, b) {
+                        return a + b;
+                    });
+                    initializeGameContainerForUser(currentUser);
+                    setHidden(".message-container", true);
+                    setHidden(".start-container", true);
+                    setHidden(".game-container", false);
+                    buttonShuffle.disabled = true;
+                    buttonStop.hidden = true;
+                    buttonEndTurn.hidden = false;
+                    if (currentUser.score == 21) {
+                        finishGame("You won", true);
+                        console.log("Wygrałeś ");
+                    }
+                    else if (currentUser.score > 21) {
+                        if (currentUser.cardList.filter(function (card) {
+                            return card.value == "ACE";
+                        }).length == 2) {
+                            finishGame("You won", true);
+                        }
+                        finishGame("You lose", false);
+                    }
+                    return [2 /*return*/];
+            }
+        });
+    });
+}
+buttonEndTurn.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
+    return __generator(this, function (_a) {
+        console.log("end turn");
+        return [2 /*return*/];
     });
 }); });
 buttonPlayGroup.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
@@ -145,41 +236,35 @@ function setHidden(name, hidden) {
 function removeElements(elements) {
     elements.forEach(function (el) { return el.remove(); });
 }
-buttonShuffle.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
-    var drawCard;
-    return __generator(this, function (_a) {
-        switch (_a.label) {
-            case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/" + deck.deck_id + "/draw/?count=1")];
-            case 1:
-                drawCard = _a.sent();
-                if (currentUser.cardList == null) {
-                    currentUser.cardList = new Array(0);
-                }
-                drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
-                currentUser.cardList.push(drawCard.cards[0]);
-                currentUser.score = currentUser.cardList
-                    .map(function (a) { return a.points; })
-                    .reduce(function (a, b) {
-                    return a + b;
-                });
-                document.querySelector(".score-number").innerHTML = currentUser.score.toString();
-                displayUserCard(currentUser);
-                if (currentUser.score == 21) {
-                    finishGame("You won");
-                    console.log("Wygrałeś ");
-                }
-                else if (currentUser.score > 21) {
-                    if (currentUser.cardList.filter(function (card) {
-                        return card.value == "ACE";
-                    }).length == 2) {
-                        finishGame("You won");
-                    }
-                    finishGame("You lose");
-                }
-                return [2 /*return*/];
-        }
-    });
-}); });
+// buttonShuffle.addEventListener("click", async (e) => {
+//   let drawCard = await fetchData<drawCard>(
+//     `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=1`
+//   );
+//   if (currentUser.cardList == null) {
+//     currentUser.cardList = new Array<card>(0);
+//   }
+//   drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
+//   currentUser.cardList.push(drawCard.cards[0]);
+//   currentUser.score = currentUser.cardList
+//     .map((a) => a.points)
+//     .reduce(function (a, b) {
+//       return a + b;
+//     });
+//   initializeGameContainerForUser(currentUser);
+//   if (currentUser.score == 21) {
+//     finishGame("You won", true);
+//     console.log("Wygrałeś ");
+//   } else if (currentUser.score > 21) {
+//     if (
+//       currentUser.cardList.filter((card) => {
+//         return card.value == "ACE";
+//       }).length == 2
+//     ) {
+//       finishGame("You won", true);
+//     }
+//     finishGame("You lose", true);
+//   }
+// });
 function displayUserCard(user) {
     return __awaiter(this, void 0, void 0, function () {
         var i, newImgElement;
@@ -199,9 +284,11 @@ buttonNewGame.addEventListener("click", function (e) {
     setHidden(".start-container", false);
     setHidden(".game-container", true);
 });
-function finishGame(message) {
+function finishGame(message, shouldClearDeck) {
     currentUser = null;
-    deck = null;
+    if (shouldClearDeck) {
+        deck = null;
+    }
     setHidden(".message-container", false);
     document.querySelector(".message").innerHTML = message;
     buttonShuffle.disabled = true;
@@ -252,7 +339,8 @@ function getCardPointsForGame(value) {
     return points;
 }
 var user = /** @class */ (function () {
-    function user(name) {
+    function user(name, id) {
+        this.id = id;
         this.name = name;
         this.score = 0;
         this.cardList = new Array(0);

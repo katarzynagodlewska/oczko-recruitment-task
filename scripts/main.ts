@@ -6,6 +6,7 @@ const buttonPlayGroup = document.querySelector(".button-play-group");
 const buttonBacks = document.querySelectorAll(".button-back");
 const buttonSubmit = document.querySelector(".button-sumbit");
 const buttonStop = document.querySelector(".button-stop");
+const buttonEndTurn = document.querySelector(".button-end-turn");
 
 const form: HTMLFormElement = document.querySelector(".username-form");
 
@@ -33,6 +34,10 @@ form.onsubmit = (e) => {
 
 //TODO play for group
 startGameForGroup.addEventListener("click", async (e) => {
+  deck = await fetchData<deck>(
+    "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
+  );
+
   const formData = new FormData(form);
   const userNames = formData.getAll("textInput").filter((userName) => {
     return userName != "";
@@ -41,44 +46,144 @@ startGameForGroup.addEventListener("click", async (e) => {
   clearUsernamesForm();
 
   for (var i = 0; i < userNames.length; i++) {
-    const newUser = new user(userNames[i] as string);
+    const newUser = new user(userNames[i] as string, i);
     users.push(newUser);
   }
   (buttonShuffle as HTMLInputElement).disabled = false;
+  (buttonEndTurn as HTMLInputElement).hidden = true;
+
   setHidden(".start-container", true);
   setHidden(".game-container", false);
   setHidden(".form-container", true);
+  setHidden(".message-container", true);
+  currentUser = users[0];
 
-  //TODO
-  do {
-    // trzeba miec jakis counter current usera
-    //jeśli dojdzie do ostatiego to counter sie zeruje
-    //4 graczy 0 -> 1 -> 2 -> 3 -> 0-> 1 -> 2
-  } while (
-    users.some((user) => {
-      return user.userState == userStates.won;
-    }) ||
-    users.filter((user) => {
-      return user.userState != userStates.loose;
-    }).length == 0
-  );
+  initializeGameContainerForUser(currentUser);
+
+  buttonShuffle.addEventListener("click", methodToGetCardForGroupGame);
+
+  // //TODO
+  // do {
+  //   // trzeba miec jakis counter current usera
+  //   //jeśli dojdzie do ostatiego to counter sie zeruje
+  //   //4 graczy 0 -> 1 -> 2 -> 3 -> 0-> 1 -> 2
+  //   users.forEach(user => {
+
+  //   });
+
+  // } while (
+  //   users.some((user) => {
+  //     return user.userState == userStates.won;
+  //   }) ||
+  //   users.filter((user) => {
+  //     return user.userState != userStates.loose;
+  //   }).length == 0
+  // );
 });
+function initializeGameContainerForUser(user: user) {
+  document.querySelector(".score-number").innerHTML = user.score.toString();
+
+  document.querySelector(".username-field").innerHTML = user.name;
+
+  displayUserCard(user);
+}
 
 buttonPlay.addEventListener("click", async (e) => {
   deck = await fetchData<deck>(
     "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
   );
-  currentUser = new user("test");
-  removeElements(document.querySelectorAll(".card-img"));
+  currentUser = new user("test", 0);
+  initializeGameContainerForUser(currentUser);
+  //removeElements(document.querySelectorAll(".card-img"));
 
   setHidden(".message-container", true);
   setHidden(".start-container", true);
   setHidden(".game-container", false);
 
-  document.querySelector(".score-number").innerHTML = "0";
-
   (buttonShuffle as HTMLInputElement).disabled = false;
   (buttonStop as HTMLInputElement).hidden = true;
+  (buttonEndTurn as HTMLInputElement).hidden = true;
+
+  buttonShuffle.addEventListener("click", methodToGetCardForSingleGame);
+});
+
+async function methodToGetCardForSingleGame() {
+  let drawCard = await fetchData<drawCard>(
+    `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=1`
+  );
+  if (currentUser.cardList == null) {
+    currentUser.cardList = new Array<card>(0);
+  }
+
+  drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
+  currentUser.cardList.push(drawCard.cards[0]);
+
+  currentUser.score = currentUser.cardList
+    .map((a) => a.points)
+    .reduce(function (a, b) {
+      return a + b;
+    });
+
+  initializeGameContainerForUser(currentUser);
+
+  if (currentUser.score == 21) {
+    finishGame("You won", true);
+    console.log("Wygrałeś ");
+  } else if (currentUser.score > 21) {
+    if (
+      currentUser.cardList.filter((card) => {
+        return card.value == "ACE";
+      }).length == 2
+    ) {
+      finishGame("You won", true);
+    }
+    finishGame("You lose", true);
+  }
+}
+
+async function methodToGetCardForGroupGame() {
+  let drawCard = await fetchData<drawCard>(
+    `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=1`
+  );
+  if (currentUser.cardList == null) {
+    currentUser.cardList = new Array<card>(0);
+  }
+
+  drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
+  currentUser.cardList.push(drawCard.cards[0]);
+
+  currentUser.score = currentUser.cardList
+    .map((a) => a.points)
+    .reduce(function (a, b) {
+      return a + b;
+    });
+
+  initializeGameContainerForUser(currentUser);
+  setHidden(".message-container", true);
+  setHidden(".start-container", true);
+  setHidden(".game-container", false);
+
+  (buttonShuffle as HTMLInputElement).disabled = true;
+  (buttonStop as HTMLInputElement).hidden = true;
+  (buttonEndTurn as HTMLInputElement).hidden = false;
+
+  if (currentUser.score == 21) {
+    finishGame("You won", true);
+    console.log("Wygrałeś ");
+  } else if (currentUser.score > 21) {
+    if (
+      currentUser.cardList.filter((card) => {
+        return card.value == "ACE";
+      }).length == 2
+    ) {
+      finishGame("You won", true);
+    }
+    finishGame("You lose", false);
+  }
+}
+
+buttonEndTurn.addEventListener("click", async (e) => {
+  console.log("end turn");
 });
 
 buttonPlayGroup.addEventListener("click", async (e) => {
@@ -119,42 +224,39 @@ function removeElements(elements: NodeListOf<Element>) {
   elements.forEach((el) => el.remove());
 }
 
-buttonShuffle.addEventListener("click", async (e) => {
-  let drawCard = await fetchData<drawCard>(
-    `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=1`
-  );
-  if (currentUser.cardList == null) {
-    currentUser.cardList = new Array<card>(0);
-  }
+// buttonShuffle.addEventListener("click", async (e) => {
+//   let drawCard = await fetchData<drawCard>(
+//     `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=1`
+//   );
+//   if (currentUser.cardList == null) {
+//     currentUser.cardList = new Array<card>(0);
+//   }
 
-  drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
-  currentUser.cardList.push(drawCard.cards[0]);
+//   drawCard.cards[0].points = getCardPointsForGame(drawCard.cards[0].value);
+//   currentUser.cardList.push(drawCard.cards[0]);
 
-  currentUser.score = currentUser.cardList
-    .map((a) => a.points)
-    .reduce(function (a, b) {
-      return a + b;
-    });
-  document.querySelector(
-    ".score-number"
-  ).innerHTML = currentUser.score.toString();
+//   currentUser.score = currentUser.cardList
+//     .map((a) => a.points)
+//     .reduce(function (a, b) {
+//       return a + b;
+//     });
 
-  displayUserCard(currentUser);
+//   initializeGameContainerForUser(currentUser);
 
-  if (currentUser.score == 21) {
-    finishGame("You won");
-    console.log("Wygrałeś ");
-  } else if (currentUser.score > 21) {
-    if (
-      currentUser.cardList.filter((card) => {
-        return card.value == "ACE";
-      }).length == 2
-    ) {
-      finishGame("You won");
-    }
-    finishGame("You lose");
-  }
-});
+//   if (currentUser.score == 21) {
+//     finishGame("You won", true);
+//     console.log("Wygrałeś ");
+//   } else if (currentUser.score > 21) {
+//     if (
+//       currentUser.cardList.filter((card) => {
+//         return card.value == "ACE";
+//       }).length == 2
+//     ) {
+//       finishGame("You won", true);
+//     }
+//     finishGame("You lose", true);
+//   }
+// });
 
 async function displayUserCard(user: user) {
   removeElements(document.querySelectorAll(".card-img"));
@@ -172,9 +274,11 @@ buttonNewGame.addEventListener("click", (e) => {
   setHidden(".game-container", true);
 });
 
-function finishGame(message: string) {
+function finishGame(message: string, shouldClearDeck: boolean) {
   currentUser = null;
-  deck = null;
+  if (shouldClearDeck) {
+    deck = null;
+  }
   setHidden(".message-container", false);
 
   document.querySelector(".message").innerHTML = message;
@@ -247,12 +351,14 @@ interface images {
 }
 
 class user {
-  constructor(name: string) {
+  constructor(name: string, id: number) {
+    this.id = id;
     this.name = name;
     this.score = 0;
     this.cardList = new Array<card>(0);
     this.userState = userStates.active;
   }
+  id: number;
   name: string;
   score: number;
   cardList: Array<card>;
