@@ -1,5 +1,5 @@
 const buttonPlay = document.querySelector(".button-play");
-const buttonShuffle = document.querySelector(".button-shuffle");
+const buttonDraw = document.querySelector(".button-draw");
 const buttonNewGame = document.querySelector(".button-new-game");
 const startGameForGroup = document.querySelector(".button-start-play-group");
 const buttonPlayGroup = document.querySelector(".button-play-group");
@@ -34,7 +34,7 @@ form.onsubmit = (e) => {
 
 startGameForGroup.addEventListener("click", async (e) => {
   deck = await fetchData<deck>(
-    "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
+    "https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1"
   );
 
   const formData = new FormData(form);
@@ -48,7 +48,7 @@ startGameForGroup.addEventListener("click", async (e) => {
     const newUser = new user(userNames[i] as string, i);
     users.push(newUser);
   }
-  (buttonShuffle as HTMLInputElement).disabled = false;
+  (buttonDraw as HTMLInputElement).disabled = false;
   (buttonEndTurn as HTMLInputElement).hidden = true;
 
   setHidden(".start-container", true);
@@ -59,7 +59,7 @@ startGameForGroup.addEventListener("click", async (e) => {
 
   initializeGameContainerForUser(currentUser);
 
-  buttonShuffle.addEventListener("click", methodToGetCardForGroupGame);
+  buttonDraw.addEventListener("click", methodToGetCardForGroupGame);
 });
 
 function initializeGameContainerForUser(user: user) {
@@ -72,7 +72,7 @@ function initializeGameContainerForUser(user: user) {
 
 buttonPlay.addEventListener("click", async (e) => {
   deck = await fetchData<deck>(
-    "https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1"
+    "https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1"
   );
   currentUser = new user("test", 0);
   initializeGameContainerForUser(currentUser);
@@ -81,11 +81,11 @@ buttonPlay.addEventListener("click", async (e) => {
   setHidden(".start-container", true);
   setHidden(".game-container", false);
 
-  (buttonShuffle as HTMLInputElement).disabled = false;
+  (buttonDraw as HTMLInputElement).disabled = false;
   (buttonStop as HTMLInputElement).hidden = true;
   (buttonEndTurn as HTMLInputElement).hidden = true;
 
-  buttonShuffle.addEventListener("click", methodToGetCardForSingleGame);
+  buttonDraw.addEventListener("click", methodToGetCardForSingleGame);
 });
 
 async function methodToGetCardForSingleGame() {
@@ -122,6 +122,7 @@ async function methodToGetCardForSingleGame() {
       }).length == 2
     ) {
       finishGame("You won");
+      currentUser.score = 21;
     }
     finishGame("You lose");
   }
@@ -152,7 +153,7 @@ async function methodToGetCardForGroupGame() {
   setHidden(".start-container", true);
   setHidden(".game-container", false);
 
-  (buttonShuffle as HTMLInputElement).disabled = true;
+  (buttonDraw as HTMLInputElement).disabled = true;
   (buttonStop as HTMLInputElement).hidden = true;
   (buttonEndTurn as HTMLInputElement).hidden = false;
 
@@ -166,6 +167,7 @@ async function methodToGetCardForGroupGame() {
       }).length == 2
     ) {
       finishGameForGroup("You won");
+      currentUser.score = 21;
       currentUser.userState = userStates.won;
     }
     finishGameForGroup("You lose");
@@ -208,7 +210,7 @@ buttonEndTurn.addEventListener("click", async (e) => {
       showResults();
     } else {
       initializeGameContainerForUser(currentUser);
-      (buttonShuffle as HTMLInputElement).disabled = false;
+      (buttonDraw as HTMLInputElement).disabled = false;
       (buttonStop as HTMLInputElement).hidden = false;
       (buttonEndTurn as HTMLInputElement).hidden = true;
     }
@@ -245,7 +247,6 @@ function showResults() {
     newElement.className = "user-result";
     newElement.innerHTML = `  ${users[i].name} || ${users[i].score} || ${users[i].userState}  `;
 
-    //todo
     document.querySelector(".results-container").appendChild(newElement);
   }
 }
@@ -315,7 +316,7 @@ function finishGame(message: string) {
 
   document.querySelector(".message").innerHTML = message;
 
-  (buttonShuffle as HTMLInputElement).disabled = true;
+  (buttonDraw as HTMLInputElement).disabled = true;
 }
 
 function finishGameForGroup(message: string) {
@@ -323,7 +324,7 @@ function finishGameForGroup(message: string) {
 
   document.querySelector(".message").innerHTML = message;
 
-  (buttonShuffle as HTMLInputElement).disabled = true;
+  (buttonDraw as HTMLInputElement).disabled = true;
 }
 
 async function fetchData<T>(url: string): Promise<T> {

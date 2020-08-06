@@ -36,7 +36,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 var _this = this;
 var buttonPlay = document.querySelector(".button-play");
-var buttonShuffle = document.querySelector(".button-shuffle");
+var buttonDraw = document.querySelector(".button-draw");
 var buttonNewGame = document.querySelector(".button-new-game");
 var startGameForGroup = document.querySelector(".button-start-play-group");
 var buttonPlayGroup = document.querySelector(".button-play-group");
@@ -66,7 +66,7 @@ startGameForGroup.addEventListener("click", function (e) { return __awaiter(_thi
     var formData, userNames, i, newUser;
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")];
+            case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1")];
             case 1:
                 deck = _a.sent();
                 formData = new FormData(form);
@@ -78,7 +78,7 @@ startGameForGroup.addEventListener("click", function (e) { return __awaiter(_thi
                     newUser = new user(userNames[i], i);
                     users.push(newUser);
                 }
-                buttonShuffle.disabled = false;
+                buttonDraw.disabled = false;
                 buttonEndTurn.hidden = true;
                 setHidden(".start-container", true);
                 setHidden(".game-container", false);
@@ -86,7 +86,7 @@ startGameForGroup.addEventListener("click", function (e) { return __awaiter(_thi
                 setHidden(".message-container", true);
                 currentUser = users[0];
                 initializeGameContainerForUser(currentUser);
-                buttonShuffle.addEventListener("click", methodToGetCardForGroupGame);
+                buttonDraw.addEventListener("click", methodToGetCardForGroupGame);
                 return [2 /*return*/];
         }
     });
@@ -99,7 +99,7 @@ function initializeGameContainerForUser(user) {
 buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
         switch (_a.label) {
-            case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=1")];
+            case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1")];
             case 1:
                 deck = _a.sent();
                 currentUser = new user("test", 0);
@@ -107,10 +107,10 @@ buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void
                 setHidden(".message-container", true);
                 setHidden(".start-container", true);
                 setHidden(".game-container", false);
-                buttonShuffle.disabled = false;
+                buttonDraw.disabled = false;
                 buttonStop.hidden = true;
                 buttonEndTurn.hidden = true;
-                buttonShuffle.addEventListener("click", methodToGetCardForSingleGame);
+                buttonDraw.addEventListener("click", methodToGetCardForSingleGame);
                 return [2 /*return*/];
         }
     });
@@ -147,6 +147,7 @@ function methodToGetCardForSingleGame() {
                             return card.value == "ACE";
                         }).length == 2) {
                             finishGame("You won");
+                            currentUser.score = 21;
                         }
                         finishGame("You lose");
                     }
@@ -181,7 +182,7 @@ function methodToGetCardForGroupGame() {
                     setHidden(".message-container", true);
                     setHidden(".start-container", true);
                     setHidden(".game-container", false);
-                    buttonShuffle.disabled = true;
+                    buttonDraw.disabled = true;
                     buttonStop.hidden = true;
                     buttonEndTurn.hidden = false;
                     if (currentUser.score == 21) {
@@ -193,6 +194,7 @@ function methodToGetCardForGroupGame() {
                             return card.value == "ACE";
                         }).length == 2) {
                             finishGameForGroup("You won");
+                            currentUser.score = 21;
                             currentUser.userState = userStates.won;
                         }
                         finishGameForGroup("You lose");
@@ -238,7 +240,7 @@ buttonEndTurn.addEventListener("click", function (e) { return __awaiter(_this, v
             }
             else {
                 initializeGameContainerForUser(currentUser);
-                buttonShuffle.disabled = false;
+                buttonDraw.disabled = false;
                 buttonStop.hidden = false;
                 buttonEndTurn.hidden = true;
             }
@@ -271,7 +273,6 @@ function showResults() {
         var newElement = document.createElement("span");
         newElement.className = "user-result";
         newElement.innerHTML = "  " + users[i].name + " || " + users[i].score + " || " + users[i].userState + "  ";
-        //todo
         document.querySelector(".results-container").appendChild(newElement);
     }
 }
@@ -337,12 +338,12 @@ function finishGame(message) {
     deck = null;
     setHidden(".message-container", false);
     document.querySelector(".message").innerHTML = message;
-    buttonShuffle.disabled = true;
+    buttonDraw.disabled = true;
 }
 function finishGameForGroup(message) {
     setHidden(".message-container", false);
     document.querySelector(".message").innerHTML = message;
-    buttonShuffle.disabled = true;
+    buttonDraw.disabled = true;
 }
 function fetchData(url) {
     return __awaiter(this, void 0, void 0, function () {
