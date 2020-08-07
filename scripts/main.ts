@@ -10,18 +10,18 @@ const buttonEndTurn = document.querySelector(".button-end-turn");
 const form: HTMLFormElement = document.querySelector(".username-form");
 
 let deck: deck;
-let currentUser: user;
+let currentPlayer: player;
 let userCounter: number = 0;
-let users: Array<user> = new Array<user>(0);
+let players: Array<player> = new Array<player>(0);
 
 form.onsubmit = (e) => {
   e.preventDefault();
   const formData = new FormData(form);
   const getAll = formData.getAll("textInput");
-  const lastElement = getAll[getAll.length - 1] as string;
+  // const lastElement = getAll[getAll.length - 1] as string;
 
-  console.log(getAll);
-  console.log(lastElement);
+  // console.log(getAll);
+  // console.log(lastElement);
 
   var newElement = document.createElement("input");
   newElement.setAttribute("type", "input");
@@ -44,8 +44,8 @@ startGameForGroup.addEventListener("click", async (e) => {
   clearUsernamesForm();
 
   for (var i = 0; i < userNames.length; i++) {
-    const newUser = new user(userNames[i] as string, i);
-    users.push(newUser);
+    const newUser = new player(userNames[i] as string, i);
+    players.push(newUser);
   }
   (buttonDraw as HTMLInputElement).disabled = false;
   (buttonEndTurn as HTMLInputElement).hidden = true;
@@ -54,27 +54,27 @@ startGameForGroup.addEventListener("click", async (e) => {
   setHidden(".game-container", false);
   setHidden(".form-container", true);
   setHidden(".message-container", true);
-  currentUser = users[0];
+  currentPlayer = players[0];
 
-  initializeGameContainerForUser(currentUser);
+  initializeGameContainerForUser(currentPlayer);
 
   buttonDraw.addEventListener("click", methodToGetCardForGroupGame);
 });
 
-function initializeGameContainerForUser(user: user) {
-  document.querySelector(".score-number").innerHTML = user.score.toString();
+function initializeGameContainerForUser(player: player) {
+  document.querySelector(".score-number").innerHTML = player.score.toString();
 
-  document.querySelector(".username__field").innerHTML = user.name;
+  document.querySelector(".username__field").innerHTML = player.name;
 
-  displayUserCard(user);
+  displayUserCard(player);
 }
 
 buttonPlay.addEventListener("click", async (e) => {
   deck = await fetchData<deck>(
     "https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1"
   );
-  currentUser = new user("test", 0);
-  initializeGameContainerForUser(currentUser);
+  currentPlayer = new player("test", 0);
+  initializeGameContainerForUser(currentPlayer);
 
   setHidden(".message-container", true);
   setHidden(".start-container", true);
@@ -89,66 +89,66 @@ buttonPlay.addEventListener("click", async (e) => {
 });
 
 async function methodToGetCardForSingleGame() {
-  let howManyCardsUserShouldGet = currentUser.cardList.length == 0 ? 2 : 1;
+  let howManyCardsUserShouldGet = currentPlayer.cardList.length == 0 ? 2 : 1;
 
   let drawCard = await fetchData<drawCard>(
     `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=${howManyCardsUserShouldGet}`
   );
 
-  if (currentUser.cardList == null) {
-    currentUser.cardList = new Array<card>(0);
+  if (currentPlayer.cardList == null) {
+    currentPlayer.cardList = new Array<card>(0);
   }
 
   drawCard.cards.forEach((element) => {
     element.points = getCardPointsForGame(element.value);
-    currentUser.cardList.push(element);
+    currentPlayer.cardList.push(element);
   });
 
-  currentUser.score = currentUser.cardList
+  currentPlayer.score = currentPlayer.cardList
     .map((a) => a.points)
     .reduce(function (a, b) {
       return a + b;
     });
 
-  initializeGameContainerForUser(currentUser);
+  initializeGameContainerForUser(currentPlayer);
 
-  if (currentUser.score == 21) {
+  if (currentPlayer.score == 21) {
     finishGame("You won");
     console.log("Wygrałeś ");
-  } else if (currentUser.score > 21) {
+  } else if (currentPlayer.score > 21) {
     if (
-      currentUser.cardList.filter((card) => {
+      currentPlayer.cardList.filter((card) => {
         return card.value == "ACE";
       }).length == 2
     ) {
       finishGame("You won");
-      currentUser.score = 21;
+      currentPlayer.score = 21;
     }
     finishGame("You lose");
   }
 }
 
 async function methodToGetCardForGroupGame() {
-  let howManyCardsUserShouldGet = currentUser.cardList.length == 0 ? 2 : 1;
+  let howManyCardsUserShouldGet = currentPlayer.cardList.length == 0 ? 2 : 1;
   let drawCard = await fetchData<drawCard>(
     `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=${howManyCardsUserShouldGet}`
   );
-  if (currentUser.cardList == null) {
-    currentUser.cardList = new Array<card>(0);
+  if (currentPlayer.cardList == null) {
+    currentPlayer.cardList = new Array<card>(0);
   }
 
   drawCard.cards.forEach((element) => {
     element.points = getCardPointsForGame(element.value);
-    currentUser.cardList.push(element);
+    currentPlayer.cardList.push(element);
   });
 
-  currentUser.score = currentUser.cardList
+  currentPlayer.score = currentPlayer.cardList
     .map((a) => a.points)
     .reduce(function (a, b) {
       return a + b;
     });
 
-  initializeGameContainerForUser(currentUser);
+  initializeGameContainerForUser(currentPlayer);
   setHidden(".message-container", true);
   setHidden(".start-container", true);
   setHidden(".game-container", false);
@@ -157,59 +157,59 @@ async function methodToGetCardForGroupGame() {
   (buttonStop as HTMLInputElement).hidden = true;
   (buttonEndTurn as HTMLInputElement).hidden = false;
 
-  if (currentUser.score == 21) {
+  if (currentPlayer.score == 21) {
     finishGameForGroup("You won");
-    currentUser.userState = userStates.won;
-  } else if (currentUser.score > 21) {
+    currentPlayer.userState = userStates.won;
+  } else if (currentPlayer.score > 21) {
     if (
-      currentUser.cardList.filter((card) => {
+      currentPlayer.cardList.filter((card) => {
         return card.value == "ACE";
       }).length == 2
     ) {
       finishGameForGroup("You won");
-      currentUser.score = 21;
-      currentUser.userState = userStates.won;
+      currentPlayer.score = 21;
+      currentPlayer.userState = userStates.won;
     }
     finishGameForGroup("You lose");
-    currentUser.userState = userStates.loose;
+    currentPlayer.userState = userStates.loose;
   }
 }
 
 buttonStop.addEventListener("click", (e) => {
-  currentUser.userState = userStates.waiting;
+  currentPlayer.userState = userStates.waiting;
 
   (buttonStop as HTMLInputElement).hidden = true;
   (buttonEndTurn as HTMLInputElement).hidden = false;
 });
 
 buttonEndTurn.addEventListener("click", async (e) => {
-  if (currentUser.userState == userStates.won) {
+  if (currentPlayer.userState == userStates.won) {
     showResults();
   } else {
-    let currentUserId = currentUser.id;
-    currentUser = null;
-    for (let i = currentUserId + 1; i < users.length; i++) {
-      let user = users[i];
-      if (user.userState == userStates.active) {
-        currentUser = user;
+    let currentUserId = currentPlayer.id;
+    currentPlayer = null;
+    for (let i = currentUserId + 1; i < players.length; i++) {
+      let player = players[i];
+      if (player.userState == userStates.active) {
+        currentPlayer = player;
         break;
       }
     }
 
-    if (currentUser == null) {
-      for (let i = 0; i < users.length; i++) {
-        let user = users[i];
-        if (user.userState == userStates.active) {
-          currentUser = user;
+    if (currentPlayer == null) {
+      for (let i = 0; i < players.length; i++) {
+        let player = players[i];
+        if (player.userState == userStates.active) {
+          currentPlayer = player;
           break;
         }
       }
     }
 
-    if (currentUser == null) {
+    if (currentPlayer == null) {
       showResults();
     } else {
-      initializeGameContainerForUser(currentUser);
+      initializeGameContainerForUser(currentPlayer);
       (buttonDraw as HTMLInputElement).disabled = false;
       (buttonStop as HTMLInputElement).hidden = false;
       (buttonEndTurn as HTMLInputElement).hidden = true;
@@ -221,31 +221,31 @@ function showResults() {
   setHidden(".results-container", false);
   setHidden(".game-container", true);
 
-  if (users.some((user) => user.userState == userStates.won)) {
-    users.forEach((element) => {
+  if (players.some((player) => player.userState == userStates.won)) {
+    players.forEach((element) => {
       if (element.userState != userStates.won) {
         element.userState = userStates.loose;
       }
     });
   }
 
-  if (users.some((user) => user.userState == userStates.waiting)) {
-    let wonUser = users
-      .filter((user) => user.userState == userStates.waiting)
+  if (players.some((player) => player.userState == userStates.waiting)) {
+    let wonUser = players
+      .filter((player) => player.userState == userStates.waiting)
       .sort((a, b) => b.score - a.score)[0];
 
     wonUser.userState = userStates.won;
-    users.forEach((element) => {
+    players.forEach((element) => {
       if (element.userState != userStates.won) {
         element.userState = userStates.loose;
       }
     });
   }
 
-  for (let i = 0; i < users.length; i++) {
+  for (let i = 0; i < players.length; i++) {
     var newElement = document.createElement("span");
-    newElement.className = "user-result";
-    newElement.innerHTML = `  ${users[i].name} || ${users[i].score} || ${users[i].userState}  `;
+    newElement.className = "player-result";
+    newElement.innerHTML = `  ${players[i].name} || ${players[i].score} || ${players[i].userState}  `;
 
     document.querySelector(".results-container").appendChild(newElement);
   }
@@ -259,16 +259,16 @@ buttonPlayGroup.addEventListener("click", async (e) => {
 
 buttonBacks.forEach((buttonBack) => {
   buttonBack.addEventListener("click", async (e) => {
-    currentUser = null;
+    currentPlayer = null;
     deck = null;
-    users = new Array<user>();
+    players = new Array<player>();
     setHidden(".form-container", true);
     setHidden(".start-container", false);
     setHidden(".game-container", true);
     setHidden(".results-container", true);
 
     removeElements(document.querySelectorAll(".card-img"));
-    removeElements(document.querySelectorAll(".user-result"));
+    removeElements(document.querySelectorAll(".player-result"));
 
     clearUsernamesForm();
   });
@@ -300,19 +300,22 @@ function removeElements(elements: NodeListOf<Element>) {
   elements.forEach((el) => el.remove());
 }
 
-async function displayUserCard(user: user) {
+async function displayUserCard(player: player) {
   removeElements(document.querySelectorAll(".card-img"));
 
-  for (let i = 0; i < user.cardList.length; i++) {
+  for (let i = 0; i < player.cardList.length; i++) {
     let newImgElement = document.createElement("img");
-    newImgElement.src = user.cardList[i].image;
+    newImgElement.src = player.cardList[i].image;
     newImgElement.className = "card-img";
     document.getElementById("card-list").appendChild(newImgElement);
+    if (i == player.cardList.length - 1) {
+      //dodaj animacje
+    }
   }
 }
 
 function finishGame(message: string) {
-  currentUser = null;
+  currentPlayer = null;
   deck = null;
 
   setHidden(".message-container", false);
@@ -394,7 +397,7 @@ interface images {
   svg: string;
 }
 
-class user {
+class player {
   constructor(name: string, id: number) {
     this.id = id;
     this.name = name;

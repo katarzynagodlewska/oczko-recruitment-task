@@ -45,16 +45,16 @@ var buttonStop = document.querySelector(".button-stop");
 var buttonEndTurn = document.querySelector(".button-end-turn");
 var form = document.querySelector(".username-form");
 var deck;
-var currentUser;
+var currentPlayer;
 var userCounter = 0;
-var users = new Array(0);
+var players = new Array(0);
 form.onsubmit = function (e) {
     e.preventDefault();
     var formData = new FormData(form);
     var getAll = formData.getAll("textInput");
-    var lastElement = getAll[getAll.length - 1];
-    console.log(getAll);
-    console.log(lastElement);
+    // const lastElement = getAll[getAll.length - 1] as string;
+    // console.log(getAll);
+    // console.log(lastElement);
     var newElement = document.createElement("input");
     newElement.setAttribute("type", "input");
     newElement.className = "input-name";
@@ -74,8 +74,8 @@ startGameForGroup.addEventListener("click", function (e) { return __awaiter(_thi
                 });
                 clearUsernamesForm();
                 for (i = 0; i < userNames.length; i++) {
-                    newUser = new user(userNames[i], i);
-                    users.push(newUser);
+                    newUser = new player(userNames[i], i);
+                    players.push(newUser);
                 }
                 buttonDraw.disabled = false;
                 buttonEndTurn.hidden = true;
@@ -83,17 +83,17 @@ startGameForGroup.addEventListener("click", function (e) { return __awaiter(_thi
                 setHidden(".game-container", false);
                 setHidden(".form-container", true);
                 setHidden(".message-container", true);
-                currentUser = users[0];
-                initializeGameContainerForUser(currentUser);
+                currentPlayer = players[0];
+                initializeGameContainerForUser(currentPlayer);
                 buttonDraw.addEventListener("click", methodToGetCardForGroupGame);
                 return [2 /*return*/];
         }
     });
 }); });
-function initializeGameContainerForUser(user) {
-    document.querySelector(".score-number").innerHTML = user.score.toString();
-    document.querySelector(".username__field").innerHTML = user.name;
-    displayUserCard(user);
+function initializeGameContainerForUser(player) {
+    document.querySelector(".score-number").innerHTML = player.score.toString();
+    document.querySelector(".username__field").innerHTML = player.name;
+    displayUserCard(player);
 }
 buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
     return __generator(this, function (_a) {
@@ -101,8 +101,8 @@ buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void
             case 0: return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1")];
             case 1:
                 deck = _a.sent();
-                currentUser = new user("test", 0);
-                initializeGameContainerForUser(currentUser);
+                currentPlayer = new player("test", 0);
+                initializeGameContainerForUser(currentPlayer);
                 setHidden(".message-container", true);
                 setHidden(".start-container", true);
                 setHidden(".game-container", false);
@@ -121,33 +121,33 @@ function methodToGetCardForSingleGame() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    howManyCardsUserShouldGet = currentUser.cardList.length == 0 ? 2 : 1;
+                    howManyCardsUserShouldGet = currentPlayer.cardList.length == 0 ? 2 : 1;
                     return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/" + deck.deck_id + "/draw/?count=" + howManyCardsUserShouldGet)];
                 case 1:
                     drawCard = _a.sent();
-                    if (currentUser.cardList == null) {
-                        currentUser.cardList = new Array(0);
+                    if (currentPlayer.cardList == null) {
+                        currentPlayer.cardList = new Array(0);
                     }
                     drawCard.cards.forEach(function (element) {
                         element.points = getCardPointsForGame(element.value);
-                        currentUser.cardList.push(element);
+                        currentPlayer.cardList.push(element);
                     });
-                    currentUser.score = currentUser.cardList
+                    currentPlayer.score = currentPlayer.cardList
                         .map(function (a) { return a.points; })
                         .reduce(function (a, b) {
                         return a + b;
                     });
-                    initializeGameContainerForUser(currentUser);
-                    if (currentUser.score == 21) {
+                    initializeGameContainerForUser(currentPlayer);
+                    if (currentPlayer.score == 21) {
                         finishGame("You won");
                         console.log("Wygrałeś ");
                     }
-                    else if (currentUser.score > 21) {
-                        if (currentUser.cardList.filter(function (card) {
+                    else if (currentPlayer.score > 21) {
+                        if (currentPlayer.cardList.filter(function (card) {
                             return card.value == "ACE";
                         }).length == 2) {
                             finishGame("You won");
-                            currentUser.score = 21;
+                            currentPlayer.score = 21;
                         }
                         finishGame("You lose");
                     }
@@ -162,43 +162,43 @@ function methodToGetCardForGroupGame() {
         return __generator(this, function (_a) {
             switch (_a.label) {
                 case 0:
-                    howManyCardsUserShouldGet = currentUser.cardList.length == 0 ? 2 : 1;
+                    howManyCardsUserShouldGet = currentPlayer.cardList.length == 0 ? 2 : 1;
                     return [4 /*yield*/, fetchData("https://deckofcardsapi.com/api/deck/" + deck.deck_id + "/draw/?count=" + howManyCardsUserShouldGet)];
                 case 1:
                     drawCard = _a.sent();
-                    if (currentUser.cardList == null) {
-                        currentUser.cardList = new Array(0);
+                    if (currentPlayer.cardList == null) {
+                        currentPlayer.cardList = new Array(0);
                     }
                     drawCard.cards.forEach(function (element) {
                         element.points = getCardPointsForGame(element.value);
-                        currentUser.cardList.push(element);
+                        currentPlayer.cardList.push(element);
                     });
-                    currentUser.score = currentUser.cardList
+                    currentPlayer.score = currentPlayer.cardList
                         .map(function (a) { return a.points; })
                         .reduce(function (a, b) {
                         return a + b;
                     });
-                    initializeGameContainerForUser(currentUser);
+                    initializeGameContainerForUser(currentPlayer);
                     setHidden(".message-container", true);
                     setHidden(".start-container", true);
                     setHidden(".game-container", false);
                     buttonDraw.disabled = true;
                     buttonStop.hidden = true;
                     buttonEndTurn.hidden = false;
-                    if (currentUser.score == 21) {
+                    if (currentPlayer.score == 21) {
                         finishGameForGroup("You won");
-                        currentUser.userState = userStates.won;
+                        currentPlayer.userState = userStates.won;
                     }
-                    else if (currentUser.score > 21) {
-                        if (currentUser.cardList.filter(function (card) {
+                    else if (currentPlayer.score > 21) {
+                        if (currentPlayer.cardList.filter(function (card) {
                             return card.value == "ACE";
                         }).length == 2) {
                             finishGameForGroup("You won");
-                            currentUser.score = 21;
-                            currentUser.userState = userStates.won;
+                            currentPlayer.score = 21;
+                            currentPlayer.userState = userStates.won;
                         }
                         finishGameForGroup("You lose");
-                        currentUser.userState = userStates.loose;
+                        currentPlayer.userState = userStates.loose;
                     }
                     return [2 /*return*/];
             }
@@ -206,40 +206,40 @@ function methodToGetCardForGroupGame() {
     });
 }
 buttonStop.addEventListener("click", function (e) {
-    currentUser.userState = userStates.waiting;
+    currentPlayer.userState = userStates.waiting;
     buttonStop.hidden = true;
     buttonEndTurn.hidden = false;
 });
 buttonEndTurn.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
-    var currentUserId, i, user_1, i, user_2;
+    var currentUserId, i, player_1, i, player_2;
     return __generator(this, function (_a) {
-        if (currentUser.userState == userStates.won) {
+        if (currentPlayer.userState == userStates.won) {
             showResults();
         }
         else {
-            currentUserId = currentUser.id;
-            currentUser = null;
-            for (i = currentUserId + 1; i < users.length; i++) {
-                user_1 = users[i];
-                if (user_1.userState == userStates.active) {
-                    currentUser = user_1;
+            currentUserId = currentPlayer.id;
+            currentPlayer = null;
+            for (i = currentUserId + 1; i < players.length; i++) {
+                player_1 = players[i];
+                if (player_1.userState == userStates.active) {
+                    currentPlayer = player_1;
                     break;
                 }
             }
-            if (currentUser == null) {
-                for (i = 0; i < users.length; i++) {
-                    user_2 = users[i];
-                    if (user_2.userState == userStates.active) {
-                        currentUser = user_2;
+            if (currentPlayer == null) {
+                for (i = 0; i < players.length; i++) {
+                    player_2 = players[i];
+                    if (player_2.userState == userStates.active) {
+                        currentPlayer = player_2;
                         break;
                     }
                 }
             }
-            if (currentUser == null) {
+            if (currentPlayer == null) {
                 showResults();
             }
             else {
-                initializeGameContainerForUser(currentUser);
+                initializeGameContainerForUser(currentPlayer);
                 buttonDraw.disabled = false;
                 buttonStop.hidden = false;
                 buttonEndTurn.hidden = true;
@@ -251,28 +251,28 @@ buttonEndTurn.addEventListener("click", function (e) { return __awaiter(_this, v
 function showResults() {
     setHidden(".results-container", false);
     setHidden(".game-container", true);
-    if (users.some(function (user) { return user.userState == userStates.won; })) {
-        users.forEach(function (element) {
+    if (players.some(function (player) { return player.userState == userStates.won; })) {
+        players.forEach(function (element) {
             if (element.userState != userStates.won) {
                 element.userState = userStates.loose;
             }
         });
     }
-    if (users.some(function (user) { return user.userState == userStates.waiting; })) {
-        var wonUser = users
-            .filter(function (user) { return user.userState == userStates.waiting; })
+    if (players.some(function (player) { return player.userState == userStates.waiting; })) {
+        var wonUser = players
+            .filter(function (player) { return player.userState == userStates.waiting; })
             .sort(function (a, b) { return b.score - a.score; })[0];
         wonUser.userState = userStates.won;
-        users.forEach(function (element) {
+        players.forEach(function (element) {
             if (element.userState != userStates.won) {
                 element.userState = userStates.loose;
             }
         });
     }
-    for (var i = 0; i < users.length; i++) {
+    for (var i = 0; i < players.length; i++) {
         var newElement = document.createElement("span");
-        newElement.className = "user-result";
-        newElement.innerHTML = "  " + users[i].name + " || " + users[i].score + " || " + users[i].userState + "  ";
+        newElement.className = "player-result";
+        newElement.innerHTML = "  " + players[i].name + " || " + players[i].score + " || " + players[i].userState + "  ";
         document.querySelector(".results-container").appendChild(newElement);
     }
 }
@@ -287,15 +287,15 @@ buttonPlayGroup.addEventListener("click", function (e) { return __awaiter(_this,
 buttonBacks.forEach(function (buttonBack) {
     buttonBack.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
         return __generator(this, function (_a) {
-            currentUser = null;
+            currentPlayer = null;
             deck = null;
-            users = new Array();
+            players = new Array();
             setHidden(".form-container", true);
             setHidden(".start-container", false);
             setHidden(".game-container", true);
             setHidden(".results-container", true);
             removeElements(document.querySelectorAll(".card-img"));
-            removeElements(document.querySelectorAll(".user-result"));
+            removeElements(document.querySelectorAll(".player-result"));
             clearUsernamesForm();
             return [2 /*return*/];
         });
@@ -321,23 +321,26 @@ function setHidden(name, hidden) {
 function removeElements(elements) {
     elements.forEach(function (el) { return el.remove(); });
 }
-function displayUserCard(user) {
+function displayUserCard(player) {
     return __awaiter(this, void 0, void 0, function () {
         var i, newImgElement;
         return __generator(this, function (_a) {
             removeElements(document.querySelectorAll(".card-img"));
-            for (i = 0; i < user.cardList.length; i++) {
+            for (i = 0; i < player.cardList.length; i++) {
                 newImgElement = document.createElement("img");
-                newImgElement.src = user.cardList[i].image;
+                newImgElement.src = player.cardList[i].image;
                 newImgElement.className = "card-img";
                 document.getElementById("card-list").appendChild(newImgElement);
+                if (i == player.cardList.length - 1) {
+                    //dodaj animacje
+                }
             }
             return [2 /*return*/];
         });
     });
 }
 function finishGame(message) {
-    currentUser = null;
+    currentPlayer = null;
     deck = null;
     setHidden(".message-container", false);
     document.querySelector(".message").innerHTML = message;
@@ -393,15 +396,15 @@ function getCardPointsForGame(value) {
     }
     return points;
 }
-var user = /** @class */ (function () {
-    function user(name, id) {
+var player = /** @class */ (function () {
+    function player(name, id) {
         this.id = id;
         this.name = name;
         this.score = 0;
         this.cardList = new Array(0);
         this.userState = userStates.active;
     }
-    return user;
+    return player;
 }());
 var userStates;
 (function (userStates) {
