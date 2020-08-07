@@ -93,7 +93,7 @@ startGameForGroup.addEventListener("click", function (e) { return __awaiter(_thi
 }); });
 function initializeGameContainerForUser(user) {
     document.querySelector(".score-number").innerHTML = user.score.toString();
-    document.querySelector(".username-field").innerHTML = user.name;
+    document.querySelector(".username__field").innerHTML = user.name;
     displayUserCard(user);
 }
 buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void 0, void 0, function () {
@@ -182,6 +182,7 @@ function methodToGetCardForGroupGame() {
                     setHidden(".message-container", true);
                     setHidden(".start-container", true);
                     setHidden(".game-container", false);
+                    setHidden(".button-new-game", true);
                     buttonDraw.disabled = true;
                     buttonStop.hidden = true;
                     buttonEndTurn.hidden = false;
@@ -309,7 +310,13 @@ function clearUsernamesForm() {
     form.insertBefore(newElement, buttonSubmit);
 }
 function setHidden(name, hidden) {
-    document.querySelector(name).hidden = hidden;
+    if (hidden) {
+        document.querySelector(name).style.display = "none";
+    }
+    else {
+        document.querySelector(name).removeAttribute("style");
+    }
+    //  (document.querySelector(name) as HTMLScriptElement).hidden = hidden;
 }
 function removeElements(elements) {
     elements.forEach(function (el) { return el.remove(); });
