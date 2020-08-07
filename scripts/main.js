@@ -37,7 +37,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 var _this = this;
 var buttonPlay = document.querySelector(".button-play");
 var buttonDraw = document.querySelector(".button-draw");
-var buttonNewGame = document.querySelector(".button-new-game");
 var startGameForGroup = document.querySelector(".button-start-play-group");
 var buttonPlayGroup = document.querySelector(".button-play-group");
 var buttonBacks = document.querySelectorAll(".button-back");
@@ -107,6 +106,7 @@ buttonPlay.addEventListener("click", function (e) { return __awaiter(_this, void
                 setHidden(".message-container", true);
                 setHidden(".start-container", true);
                 setHidden(".game-container", false);
+                setHidden(".username", true);
                 buttonDraw.disabled = false;
                 buttonStop.hidden = true;
                 buttonEndTurn.hidden = true;
@@ -182,7 +182,6 @@ function methodToGetCardForGroupGame() {
                     setHidden(".message-container", true);
                     setHidden(".start-container", true);
                     setHidden(".game-container", false);
-                    setHidden(".button-new-game", true);
                     buttonDraw.disabled = true;
                     buttonStop.hidden = true;
                     buttonEndTurn.hidden = false;
@@ -281,6 +280,7 @@ buttonPlayGroup.addEventListener("click", function (e) { return __awaiter(_this,
     return __generator(this, function (_a) {
         setHidden(".start-container", true);
         setHidden(".form-container", false);
+        setHidden(".username", false);
         return [2 /*return*/];
     });
 }); });
@@ -336,10 +336,6 @@ function displayUserCard(user) {
         });
     });
 }
-buttonNewGame.addEventListener("click", function (e) {
-    setHidden(".start-container", false);
-    setHidden(".game-container", true);
-});
 function finishGame(message) {
     currentUser = null;
     deck = null;

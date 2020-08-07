@@ -1,6 +1,5 @@
 const buttonPlay = document.querySelector(".button-play");
 const buttonDraw = document.querySelector(".button-draw");
-const buttonNewGame = document.querySelector(".button-new-game");
 const startGameForGroup = document.querySelector(".button-start-play-group");
 const buttonPlayGroup = document.querySelector(".button-play-group");
 const buttonBacks = document.querySelectorAll(".button-back");
@@ -80,6 +79,7 @@ buttonPlay.addEventListener("click", async (e) => {
   setHidden(".message-container", true);
   setHidden(".start-container", true);
   setHidden(".game-container", false);
+  setHidden(".username", true);
 
   (buttonDraw as HTMLInputElement).disabled = false;
   (buttonStop as HTMLInputElement).hidden = true;
@@ -152,7 +152,6 @@ async function methodToGetCardForGroupGame() {
   setHidden(".message-container", true);
   setHidden(".start-container", true);
   setHidden(".game-container", false);
-  setHidden(".button-new-game", true);
 
   (buttonDraw as HTMLInputElement).disabled = true;
   (buttonStop as HTMLInputElement).hidden = true;
@@ -255,6 +254,7 @@ function showResults() {
 buttonPlayGroup.addEventListener("click", async (e) => {
   setHidden(".start-container", true);
   setHidden(".form-container", false);
+  setHidden(".username", false);
 });
 
 buttonBacks.forEach((buttonBack) => {
@@ -310,11 +310,6 @@ async function displayUserCard(user: user) {
     document.getElementById("card-list").appendChild(newImgElement);
   }
 }
-
-buttonNewGame.addEventListener("click", (e) => {
-  setHidden(".start-container", false);
-  setHidden(".game-container", true);
-});
 
 function finishGame(message: string) {
   currentUser = null;

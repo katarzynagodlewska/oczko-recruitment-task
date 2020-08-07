@@ -14,7 +14,6 @@
         <button class="button-play-group home-button">PLAY GROUP</button>
       </div>
       <div class="form-container" style="display: none;">
-        >
         <span>Usernames:</span>
         <form class="username-form">
           <input class="input-name" type="text" name="textInput" />
@@ -28,7 +27,6 @@
       <div class="game-container" style="display: none;">
         <div class="message-container">
           <span class="message"></span>
-          <button class="button-new-game">Start new game</button>
         </div>
         <div class="username">
           <p class="username__title">Username:</p>
@@ -132,13 +130,15 @@
             fill="url(#c)"
           />
         </svg>
-        <div>
+        <div class="game-container__buttons">
           <button class="button-draw">DRAW</button>
           <button class="button-stop">STOP</button>
           <button class="button-end-turn">END TURN</button>
         </div>
-        <span>Score:</span>
-        <span class="score-number"></span>
+        <section class="score">
+          <span>Score:</span>
+          <span class="score-number"></span>
+        </section>
         <div class="card-list" id="card-list"></div>
         <button class="button-back">BACK</button>
       </div>
