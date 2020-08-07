@@ -65,7 +65,7 @@ startGameForGroup.addEventListener("click", async (e) => {
 function initializeGameContainerForUser(user: user) {
   document.querySelector(".score-number").innerHTML = user.score.toString();
 
-  document.querySelector(".username-field").innerHTML = user.name;
+  document.querySelector(".username__field").innerHTML = user.name;
 
   displayUserCard(user);
 }
@@ -152,6 +152,7 @@ async function methodToGetCardForGroupGame() {
   setHidden(".message-container", true);
   setHidden(".start-container", true);
   setHidden(".game-container", false);
+  setHidden(".button-new-game", true);
 
   (buttonDraw as HTMLInputElement).disabled = true;
   (buttonStop as HTMLInputElement).hidden = true;
@@ -285,7 +286,14 @@ function clearUsernamesForm() {
 }
 
 function setHidden(name: string, hidden: boolean) {
-  (document.querySelector(name) as HTMLScriptElement).hidden = hidden;
+  if (hidden) {
+    (document.querySelector(name) as HTMLScriptElement).style.display = "none";
+  } else {
+    (document.querySelector(name) as HTMLScriptElement).removeAttribute(
+      "style"
+    );
+  }
+  //  (document.querySelector(name) as HTMLScriptElement).hidden = hidden;
 }
 
 function removeElements(elements: NodeListOf<Element>) {
