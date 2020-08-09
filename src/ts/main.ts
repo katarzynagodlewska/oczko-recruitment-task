@@ -81,6 +81,7 @@ startGameForGroup.addEventListener("click", async (e) => {
   }
   (buttonDraw as HTMLInputElement).disabled = false;
   (buttonEndTurn as HTMLInputElement).hidden = true;
+  (buttonEndTurn as HTMLInputElement).disabled = false;
 
   setHidden(".start-container", true);
   setHidden(".game-container", false);
@@ -134,12 +135,12 @@ formContainerBot.onsubmit = async (e) => {
   buttonEndTurn.addEventListener("click", endTurnForPlayWithBots);
 };
 
-function initializeGameContainerForUser(player: player) {
+function initializeGameContainerForUser(player: player, shouldAnimate = false) {
   document.querySelector(".score-number").innerHTML = player.score.toString();
 
   document.querySelector(".username__field").innerHTML = player.name;
 
-  displayUserCard(player);
+  displayUserCard(player, shouldAnimate);
 }
 
 buttonPlay.addEventListener("click", async (e) => {
@@ -166,7 +167,7 @@ async function methodToGetCardForSingleGame() {
 
   currentPlayer = await drawCardProcessingForPlayer(currentPlayer);
 
-  initializeGameContainerForUser(currentPlayer);
+  initializeGameContainerForUser(currentPlayer, true);
 
   if (currentPlayer.score == 21) {
     finishGame("You won");
@@ -194,7 +195,7 @@ async function methodToGetCardForGroupGame() {
 
   currentPlayer = await drawCardProcessingForPlayer(currentPlayer);
 
-  initializeGameContainerForUser(currentPlayer);
+  initializeGameContainerForUser(currentPlayer, true);
   setHidden(".message-container", true);
   setHidden(".start-container", true);
   setHidden(".game-container", false);
@@ -258,7 +259,6 @@ async function endTurnForPlayWithBots() {
         currentBot = await drawCardProcessingForPlayer(currentBot);
 
         if (currentBot.score == 20) {
-          console.log("bot is waiting");
           currentBot.userState = userStates.waiting;
           continue;
         }
@@ -297,7 +297,6 @@ async function endTurnForPlayWithBots() {
       currentBot = await drawCardProcessingForPlayer(currentBot);
 
       if (currentBot.score == 20) {
-        console.log("bot is waiting");
         currentBot.userState = userStates.waiting;
         continue;
       }
@@ -501,7 +500,7 @@ function removeElements(elements: NodeListOf<Element>) {
   elements.forEach((el) => el.remove());
 }
 
-async function displayUserCard(player: player) {
+async function displayUserCard(player: player, shouldAnimate: boolean) {
   removeElements(document.querySelectorAll(".card-img"));
 
   for (let i = 0; i < player.cardList.length; i++) {
@@ -509,14 +508,19 @@ async function displayUserCard(player: player) {
     newImgElement.src = player.cardList[i].image;
     newImgElement.className = "card-img";
     document.getElementById("card-list").appendChild(newImgElement);
-    if (i == player.cardList.length - 1) {
-      newImgElement.animate(
-        [{ transform: "translateY(-300px)" }, { transform: "translateY(0px)" }],
-        {
-          duration: 500,
-          iterations: 1,
-        }
-      );
+    if (shouldAnimate) {
+      if (i == player.cardList.length - 1) {
+        newImgElement.animate(
+          [
+            { transform: "translateY(-300px)" },
+            { transform: "translateY(0px)" },
+          ],
+          {
+            duration: 500,
+            iterations: 1,
+          }
+        );
+      }
     }
   }
 }
