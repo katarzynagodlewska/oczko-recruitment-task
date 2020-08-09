@@ -10,17 +10,34 @@
     <main>
       <h1 class="title">oczko</h1>
       <div class="start-container">
-        <button class="button-play home-button">PLAY</button>
+        <button class="button-play home-button">PLAY SINGLE</button>
         <button class="button-play-group home-button">PLAY GROUP</button>
+        <button class="button-play-bot home-button">PLAY WITH BOT</button>
       </div>
       <div class="form-container" style="display: none;">
-        <span>Usernames:</span>
+        <p class="usernames__title">Usernames:</p>
         <form class="username-form">
           <input class="input-name" type="text" name="textInput" />
 
-          <button class="button-sumbit" type="submit">ADD</button>
+          <button class="button-submit" type="submit">ADD</button>
         </form>
-        <button class="button-start-play-group">Start game for group</button>
+        <button class="button-start-play-group">START GAME</button>
+        <button class="button-back">BACK</button>
+      </div>
+      <div class="form-container-bot" style="display: none;">
+        <form class="form-bot">
+          <p class="form-bot__title">Bots quantity (between 1 and 3):</p>
+          <input
+            type="number"
+            class="input-quantity"
+            name="input-quantity"
+            min="1"
+            max="3"
+          />
+          <button type="submit" class="button-start-play-group">
+            START GAME
+          </button>
+        </form>
         <button class="button-back">BACK</button>
       </div>
 
@@ -131,9 +148,9 @@
           />
         </svg>
         <div class="game-container__buttons">
-          <button class="button-draw">DRAW</button>
-          <button class="button-stop">STOP</button>
-          <button class="button-end-turn">END TURN</button>
+          <button class="button-draw game-button">DRAW</button>
+          <button class="button-stop game-button">STOP</button>
+          <button class="button-end-turn game-button">END TURN</button>
         </div>
         <section class="score">
           <span>Score:</span>

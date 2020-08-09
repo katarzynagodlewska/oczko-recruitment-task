@@ -3,25 +3,36 @@ const buttonDraw = document.querySelector(".button-draw");
 const startGameForGroup = document.querySelector(".button-start-play-group");
 const buttonPlayGroup = document.querySelector(".button-play-group");
 const buttonBacks = document.querySelectorAll(".button-back");
-const buttonSubmit = document.querySelector(".button-sumbit");
+const buttonSubmit = document.querySelector(".button-submit");
 const buttonStop = document.querySelector(".button-stop");
 const buttonEndTurn = document.querySelector(".button-end-turn");
+const buttonPlayWithBot = document.querySelector(".button-play-bot");
 
 const form: HTMLFormElement = document.querySelector(".username-form");
-
+const formContainerBot: HTMLFormElement = document.querySelector(".form-bot");
 let deck: deck;
 let currentPlayer: player;
 let userCounter: number = 0;
 let players: Array<player> = new Array<player>(0);
 
+buttonPlayWithBot.addEventListener("click", async (e) => {
+  setHidden(".start-container", true);
+  setHidden(".form-container-bot", false);
+});
+
 form.onsubmit = (e) => {
   e.preventDefault();
-  const formData = new FormData(form);
-  const getAll = formData.getAll("textInput");
-  // const lastElement = getAll[getAll.length - 1] as string;
 
-  // console.log(getAll);
-  // console.log(lastElement);
+  const formData = new FormData(form);
+  const userNames = formData.getAll("textInput");
+  var lastUserName = userNames[userNames.length - 1];
+
+  console.log(lastUserName);
+
+  if (lastUserName.toString() == "") {
+    alert("username should be set");
+    return;
+  }
 
   var newElement = document.createElement("input");
   newElement.setAttribute("type", "input");
@@ -29,6 +40,39 @@ form.onsubmit = (e) => {
   newElement.name = "textInput";
 
   form.insertBefore(newElement, buttonSubmit);
+};
+
+formContainerBot.onsubmit = async (e) => {
+  e.preventDefault();
+  const formData = new FormData(formContainerBot);
+  const botQuantity: number = parseInt(
+    formData.get("input-quantity") as string
+  );
+
+  setHidden(".form-container-bot", true);
+  deck = await fetchData<deck>(
+    "https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1"
+  );
+  var realPlayer = new player("realPlayer", 0, false);
+  players.push(realPlayer);
+  for (var i = 1; i < botQuantity + 1; i++) {
+    const newBot = new player(`bot${i}` as string, i, true);
+    players.push(newBot);
+  }
+  (buttonDraw as HTMLInputElement).disabled = false;
+  (buttonEndTurn as HTMLInputElement).hidden = true;
+
+  setHidden(".start-container", true);
+  setHidden(".game-container", false);
+  setHidden(".form-container", true);
+  setHidden(".message-container", true);
+  currentPlayer = players[0];
+
+  initializeGameContainerForUser(currentPlayer);
+
+  // buttonDraw.removeEventListener("click", e, false);
+  buttonDraw.addEventListener("click", methodToGetCardForGroupGame);
+  buttonEndTurn.addEventListener("click", endTurnForPlayWithBots);
 };
 
 startGameForGroup.addEventListener("click", async (e) => {
@@ -44,7 +88,7 @@ startGameForGroup.addEventListener("click", async (e) => {
   clearUsernamesForm();
 
   for (var i = 0; i < userNames.length; i++) {
-    const newUser = new player(userNames[i] as string, i);
+    const newUser = new player(userNames[i] as string, i, false);
     players.push(newUser);
   }
   (buttonDraw as HTMLInputElement).disabled = false;
@@ -59,6 +103,7 @@ startGameForGroup.addEventListener("click", async (e) => {
   initializeGameContainerForUser(currentPlayer);
 
   buttonDraw.addEventListener("click", methodToGetCardForGroupGame);
+  buttonEndTurn.addEventListener("click", endTurnForGroupPlayer);
 });
 
 function initializeGameContainerForUser(player: player) {
@@ -73,7 +118,7 @@ buttonPlay.addEventListener("click", async (e) => {
   deck = await fetchData<deck>(
     "https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1"
   );
-  currentPlayer = new player("test", 0);
+  currentPlayer = new player("test", 0, false);
   initializeGameContainerForUser(currentPlayer);
 
   setHidden(".message-container", true);
@@ -89,6 +134,8 @@ buttonPlay.addEventListener("click", async (e) => {
 });
 
 async function methodToGetCardForSingleGame() {
+  (buttonDraw as HTMLInputElement).disabled = true;
+
   let howManyCardsUserShouldGet = currentPlayer.cardList.length == 0 ? 2 : 1;
 
   let drawCard = await fetchData<drawCard>(
@@ -114,7 +161,7 @@ async function methodToGetCardForSingleGame() {
 
   if (currentPlayer.score == 21) {
     finishGame("You won");
-    console.log("Wygrałeś ");
+    return;
   } else if (currentPlayer.score > 21) {
     if (
       currentPlayer.cardList.filter((card) => {
@@ -123,12 +170,18 @@ async function methodToGetCardForSingleGame() {
     ) {
       finishGame("You won");
       currentPlayer.score = 21;
+      return;
+    } else {
+      finishGame("You lose");
+      return;
     }
-    finishGame("You lose");
   }
+  (buttonDraw as HTMLInputElement).disabled = false;
 }
 
 async function methodToGetCardForGroupGame() {
+  (buttonDraw as HTMLInputElement).disabled = true;
+
   let howManyCardsUserShouldGet = currentPlayer.cardList.length == 0 ? 2 : 1;
   let drawCard = await fetchData<drawCard>(
     `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=${howManyCardsUserShouldGet}`
@@ -171,18 +224,167 @@ async function methodToGetCardForGroupGame() {
       currentPlayer.userState = userStates.won;
     }
     finishGameForGroup("You lose");
-    currentPlayer.userState = userStates.loose;
+    currentPlayer.userState = userStates.lose;
   }
 }
 
 buttonStop.addEventListener("click", (e) => {
   currentPlayer.userState = userStates.waiting;
 
+  (buttonDraw as HTMLInputElement).disabled = true;
   (buttonStop as HTMLInputElement).hidden = true;
   (buttonEndTurn as HTMLInputElement).hidden = false;
 });
 
-buttonEndTurn.addEventListener("click", async (e) => {
+async function endTurnForPlayWithBots() {
+  if (currentPlayer.userState == userStates.won) {
+    showResults();
+  } else if (
+    currentPlayer.userState == userStates.waiting ||
+    currentPlayer.userState == userStates.lose
+  ) {
+    while (
+      players.some((player) => {
+        return (
+          player.userState == userStates.waiting ||
+          player.userState == userStates.lose
+        );
+      })
+    ) {
+      //TODO
+      //do while dopoki wszyscy nie beda waiting lub lose lub ktos wygra
+
+      var currentPlayerId = 1;
+
+      for (let i = 1; i < players.length; i++) {
+        if (i == players.length - 1) {
+          i = 1;
+        }
+        var currentBot = players[i];
+        let howManyCardsUserShouldGet = currentBot.cardList.length == 0 ? 2 : 1;
+        let drawCard = await fetchData<drawCard>(
+          `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=${howManyCardsUserShouldGet}`
+        );
+        if (currentBot.cardList == null) {
+          currentBot.cardList = new Array<card>(0);
+        }
+
+        drawCard.cards.forEach((element) => {
+          element.points = getCardPointsForGame(element.value);
+          currentBot.cardList.push(element);
+        });
+
+        currentBot.score = currentBot.cardList
+          .map((a) => a.points)
+          .reduce(function (a, b) {
+            return a + b;
+          });
+
+        if (currentBot.score == 20) {
+          console.log("bot is waiting");
+          currentBot.userState = userStates.waiting;
+          continue;
+        }
+
+        if (currentBot.score == 21) {
+          currentBot.userState = userStates.won;
+          console.log(currentBot);
+          console.log("bot won");
+          showResults();
+          return;
+        } else if (currentBot.score > 21) {
+          if (
+            currentBot.cardList.filter((card) => {
+              return card.value == "ACE";
+            }).length == 2
+          ) {
+            console.log(currentBot);
+
+            console.log("bot won by ace");
+            currentBot.score = 21;
+            currentBot.userState = userStates.won;
+            showResults();
+            return;
+          } else {
+            currentBot.userState = userStates.lose;
+            console.log("bot lose");
+          }
+        }
+        console.log(currentBot);
+      }
+    }
+  } else {
+    for (let i = 1; i < players.length; i++) {
+      let currentBot = players[i];
+      if (
+        currentBot.userState == userStates.waiting ||
+        currentBot.userState == userStates.lose
+      ) {
+        continue;
+      }
+
+      let howManyCardsUserShouldGet = currentBot.cardList.length == 0 ? 2 : 1;
+      let drawCard = await fetchData<drawCard>(
+        `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=${howManyCardsUserShouldGet}`
+      );
+      if (currentBot.cardList == null) {
+        currentBot.cardList = new Array<card>(0);
+      }
+
+      drawCard.cards.forEach((element) => {
+        element.points = getCardPointsForGame(element.value);
+        currentBot.cardList.push(element);
+      });
+
+      currentBot.score = currentBot.cardList
+        .map((a) => a.points)
+        .reduce(function (a, b) {
+          return a + b;
+        });
+
+      if (currentBot.score == 20) {
+        console.log("bot is waiting");
+        currentBot.userState = userStates.waiting;
+        continue;
+      }
+
+      if (currentBot.score == 21) {
+        currentBot.userState = userStates.won;
+        console.log(currentBot);
+        console.log("bot won");
+        showResults();
+        return;
+      } else if (currentBot.score > 21) {
+        if (
+          currentBot.cardList.filter((card) => {
+            return card.value == "ACE";
+          }).length == 2
+        ) {
+          console.log(currentBot);
+
+          console.log("bot won by ace");
+          currentBot.score = 21;
+          currentBot.userState = userStates.won;
+          showResults();
+          return;
+        } else {
+          currentBot.userState = userStates.lose;
+          console.log("bot lose");
+          continue;
+        }
+      }
+      console.log(currentBot);
+    }
+
+    //    initializeGameContainerForUser(currentPlayer);
+    (buttonDraw as HTMLInputElement).disabled = false;
+    (buttonStop as HTMLInputElement).hidden = false;
+    (buttonEndTurn as HTMLInputElement).hidden = true;
+  }
+}
+
+async function endTurnForGroupPlayer() {
+  setHidden(".message-container", true);
   if (currentPlayer.userState == userStates.won) {
     showResults();
   } else {
@@ -215,7 +417,7 @@ buttonEndTurn.addEventListener("click", async (e) => {
       (buttonEndTurn as HTMLInputElement).hidden = true;
     }
   }
-});
+}
 
 function showResults() {
   setHidden(".results-container", false);
@@ -224,7 +426,7 @@ function showResults() {
   if (players.some((player) => player.userState == userStates.won)) {
     players.forEach((element) => {
       if (element.userState != userStates.won) {
-        element.userState = userStates.loose;
+        element.userState = userStates.lose;
       }
     });
   }
@@ -237,7 +439,7 @@ function showResults() {
     wonUser.userState = userStates.won;
     players.forEach((element) => {
       if (element.userState != userStates.won) {
-        element.userState = userStates.loose;
+        element.userState = userStates.lose;
       }
     });
   }
@@ -266,6 +468,7 @@ buttonBacks.forEach((buttonBack) => {
     setHidden(".start-container", false);
     setHidden(".game-container", true);
     setHidden(".results-container", true);
+    setHidden(".form-container-bot", true);
 
     removeElements(document.querySelectorAll(".card-img"));
     removeElements(document.querySelectorAll(".player-result"));
@@ -398,24 +601,26 @@ interface images {
 }
 
 class player {
-  constructor(name: string, id: number) {
+  constructor(name: string, id: number, isBot: boolean) {
     this.id = id;
     this.name = name;
     this.score = 0;
     this.cardList = new Array<card>(0);
     this.userState = userStates.active;
+    this.isBot = isBot;
   }
   id: number;
   name: string;
   score: number;
   cardList: Array<card>;
   userState: userStates;
+  isBot: boolean;
 }
 
 enum userStates {
   active = 1,
   waiting,
-  loose,
+  lose,
   won,
 }
 
