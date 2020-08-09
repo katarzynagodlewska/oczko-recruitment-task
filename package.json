@@ -1,5 +1,4 @@
 {
-  "name": "wtf-gulp-starter",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,17 +6,22 @@
     "predeploy": "gulp build",
     "deploy": "gh-pages -d dist -b master"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/maciejkorsan/wtf-gulp-starter.git"
-  },
+  "browserslist": [
+    "> 1%",
+    "ie >= 8",
+    "edge >= 15",
+    "ie_mob >= 10",
+    "ff >= 45",
+    "chrome >= 45",
+    "safari >= 7",
+    "opera >= 23",
+    "ios >= 7",
+    "android >= 4",
+    "bb >= 10"
+  ],
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/maciejkorsan/wtf-gulp-starter/issues"
-  },
-  "homepage": "https://github.com/maciejkorsan/wtf-gulp-starter#readme",
   "devDependencies": {
     "@babel/cli": "^7.7.7",
     "@babel/core": "^7.7.7",
@@ -54,5 +58,7 @@
       "@babel/preset-env"
     ]
   },
-  "dependencies": {}
+  "dependencies": {
+    "require": "^2.4.20"
+  }
 }
