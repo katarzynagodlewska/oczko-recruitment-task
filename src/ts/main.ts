@@ -40,6 +40,12 @@ form.onsubmit = (e) => {
     alert("username should be set");
     return;
   }
+  //newElement.disabled = true;
+
+  if (formData.getAll("textInput").length == 4) {
+    setHidden(".button-submit", true);
+    return;
+  }
 
   var newElement = document.createElement("input");
   newElement.setAttribute("type", "input");
@@ -255,6 +261,7 @@ buttonStop.addEventListener("click", (e) => {
 });
 
 async function endTurnForPlayWithBots() {
+  console.log("test");
   if (currentPlayer.userState == userStates.won) {
     showResults();
   } else if (
@@ -264,39 +271,22 @@ async function endTurnForPlayWithBots() {
     while (
       players.some((player) => {
         return (
-          player.userState == userStates.waiting ||
-          player.userState == userStates.lose
+          player.userState == userStates.active ||
+          player.userState == userStates.won
         );
       })
     ) {
-      //TODO
-      //do while dopoki wszyscy nie beda waiting lub lose lub ktos wygra
-
-      var currentPlayerId = 1;
-
       for (let i = 1; i < players.length; i++) {
-        if (i == players.length - 1) {
-          i = 1;
-        }
         var currentBot = players[i];
-        let howManyCardsUserShouldGet = currentBot.cardList.length == 0 ? 2 : 1;
-        let drawCard = await fetchData<drawCard>(
-          `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=${howManyCardsUserShouldGet}`
-        );
-        if (currentBot.cardList == null) {
-          currentBot.cardList = new Array<card>(0);
+
+        if (
+          currentBot.userState == userStates.lose ||
+          currentBot.userState == userStates.waiting
+        ) {
+          continue;
         }
 
-        drawCard.cards.forEach((element) => {
-          element.points = getCardPointsForGame(element.value);
-          currentBot.cardList.push(element);
-        });
-
-        currentBot.score = currentBot.cardList
-          .map((a) => a.points)
-          .reduce(function (a, b) {
-            return a + b;
-          });
+        currentBot = await drawCardProcessingForPlayer(currentBot);
 
         if (currentBot.score == 20) {
           console.log("bot is waiting");
@@ -306,8 +296,6 @@ async function endTurnForPlayWithBots() {
 
         if (currentBot.score == 21) {
           currentBot.userState = userStates.won;
-          console.log(currentBot);
-          console.log("bot won");
           showResults();
           return;
         } else if (currentBot.score > 21) {
@@ -316,21 +304,20 @@ async function endTurnForPlayWithBots() {
               return card.value == "ACE";
             }).length == 2
           ) {
-            console.log(currentBot);
-
-            console.log("bot won by ace");
             currentBot.score = 21;
             currentBot.userState = userStates.won;
             showResults();
             return;
           } else {
             currentBot.userState = userStates.lose;
-            console.log("bot lose");
           }
         }
+
         console.log(currentBot);
       }
     }
+
+    showResults();
   } else {
     for (let i = 1; i < players.length; i++) {
       let currentBot = players[i];
@@ -394,11 +381,34 @@ async function endTurnForPlayWithBots() {
       console.log(currentBot);
     }
 
-    //    initializeGameContainerForUser(currentPlayer);
     (buttonDraw as HTMLInputElement).disabled = false;
     (buttonStop as HTMLInputElement).hidden = false;
     (buttonEndTurn as HTMLInputElement).hidden = true;
   }
+}
+
+async function drawCardProcessingForPlayer(player: player): Promise<player> {
+  let howManyCardsUserShouldGet = player.cardList.length == 0 ? 2 : 1;
+  let drawCard = await fetchData<drawCard>(
+    `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=${howManyCardsUserShouldGet}`
+  );
+
+  if (player.cardList == null) {
+    player.cardList = new Array<card>(0);
+  }
+
+  drawCard.cards.forEach((element) => {
+    element.points = getCardPointsForGame(element.value);
+    player.cardList.push(element);
+  });
+
+  player.score = player.cardList
+    .map((a) => a.points)
+    .reduce(function (a, b) {
+      return a + b;
+    });
+
+  return player;
 }
 
 async function endTurnForGroupPlayer() {
@@ -498,6 +508,7 @@ buttonBacks.forEach((buttonBack) => {
     setHidden(".game-container", true);
     setHidden(".results-container", true);
     setHidden(".form-container-bot", true);
+    setHidden(".button-submit", false);
 
     removeElements(document.querySelectorAll(".card-img"));
     removeElements(document.querySelectorAll(".player-result"));
@@ -507,10 +518,16 @@ buttonBacks.forEach((buttonBack) => {
     removedEventListenersFromButtons();
   });
 });
+
 function removedEventListenersFromButtons() {
   buttonDraw.removeEventListener("click", methodToGetCardForSingleGame, false);
+
   buttonDraw.removeEventListener("click", methodToGetCardForGroupGame, false);
+  buttonEndTurn.removeEventListener("click", endTurnForGroupPlayer, false);
+
+  buttonEndTurn.removeEventListener("click", endTurnForPlayWithBots, false);
 }
+
 function clearUsernamesForm() {
   removeElements(form.querySelectorAll(".input-name"));
 
