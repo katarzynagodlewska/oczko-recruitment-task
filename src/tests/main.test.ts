@@ -1,12 +1,7 @@
-//import { main } from "./scripts/main.js";
+// import { main } from "../ts/main"
 
-// test("3 is equal to 3", () => {
-//   expect(3).toBe(3);
-// });
-test("3 is equal to 3", () => {
-  expect(3).toBe(3);
-});
-
-// test('',()=>{
-//     expect(4).toBe(main.)
+// countPlayerDeck("",async ()=>{
+//   let mockPlayer = new player("test",0,false);
+//   mockPlayer.cardList=new Array<card>()
+//   currentPlayer = await drawCardProcessingForPlayer(currentPlayer);
 // })
