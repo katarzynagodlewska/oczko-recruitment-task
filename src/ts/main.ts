@@ -7,12 +7,21 @@ const buttonSubmit = document.querySelector(".button-submit");
 const buttonStop = document.querySelector(".button-stop");
 const buttonEndTurn = document.querySelector(".button-end-turn");
 const buttonPlayWithBot = document.querySelector(".button-play-bot");
+//import * as models from "./models";
+// type deckType = models.Models.deck;
+// const userStates = models.Models.userStates;
+// type drawCardType = models.Models.drawCard;
+// type imagesType = models.Models.images;
+// type cardType = models.Models.card;
+// type userStates = models.Models.userStates;
+// // var playerType = require("./classes");
+
+// // import player from "./classes";
 
 const form: HTMLFormElement = document.querySelector(".username-form");
 const formContainerBot: HTMLFormElement = document.querySelector(".form-bot");
 let deck: deck;
 let currentPlayer: player;
-let userCounter: number = 0;
 let players: Array<player> = new Array<player>(0);
 
 buttonPlayWithBot.addEventListener("click", async (e) => {
@@ -23,11 +32,9 @@ buttonPlayWithBot.addEventListener("click", async (e) => {
 form.onsubmit = (e) => {
   e.preventDefault();
 
-  const formData = new FormData(form);
-  const userNames = formData.getAll("textInput");
+  let formData = new FormData(form);
+  let userNames = formData.getAll("textInput");
   var lastUserName = userNames[userNames.length - 1];
-
-  console.log(lastUserName);
 
   if (lastUserName.toString() == "") {
     alert("username should be set");
@@ -42,40 +49,19 @@ form.onsubmit = (e) => {
   form.insertBefore(newElement, buttonSubmit);
 };
 
-formContainerBot.onsubmit = async (e) => {
-  e.preventDefault();
-  const formData = new FormData(formContainerBot);
-  const botQuantity: number = parseInt(
-    formData.get("input-quantity") as string
-  );
-
-  setHidden(".form-container-bot", true);
-  deck = await fetchData<deck>(
-    "https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1"
-  );
-  var realPlayer = new player("realPlayer", 0, false);
-  players.push(realPlayer);
-  for (var i = 1; i < botQuantity + 1; i++) {
-    const newBot = new player(`bot${i}` as string, i, true);
-    players.push(newBot);
-  }
-  (buttonDraw as HTMLInputElement).disabled = false;
-  (buttonEndTurn as HTMLInputElement).hidden = true;
-
-  setHidden(".start-container", true);
-  setHidden(".game-container", false);
-  setHidden(".form-container", true);
-  setHidden(".message-container", true);
-  currentPlayer = players[0];
-
-  initializeGameContainerForUser(currentPlayer);
-
-  // buttonDraw.removeEventListener("click", e, false);
-  buttonDraw.addEventListener("click", methodToGetCardForGroupGame);
-  buttonEndTurn.addEventListener("click", endTurnForPlayWithBots);
-};
-
 startGameForGroup.addEventListener("click", async (e) => {
+  let formData1 = new FormData(form);
+  let userNamesList = formData1.getAll("textInput");
+
+  if (
+    userNamesList.filter((username) => {
+      return username != "";
+    }).length == 0
+  ) {
+    alert("Users should be created");
+    return;
+  }
+
   deck = await fetchData<deck>(
     "https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1"
   );
@@ -105,6 +91,38 @@ startGameForGroup.addEventListener("click", async (e) => {
   buttonDraw.addEventListener("click", methodToGetCardForGroupGame);
   buttonEndTurn.addEventListener("click", endTurnForGroupPlayer);
 });
+
+formContainerBot.onsubmit = async (e) => {
+  e.preventDefault();
+  const formData = new FormData(formContainerBot);
+  const botQuantity: number = parseInt(
+    formData.get("input-quantity") as string
+  );
+
+  setHidden(".form-container-bot", true);
+  deck = await fetchData<deck>(
+    "https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1"
+  );
+  var realPlayer = new player("realPlayer", 0, false);
+  players.push(realPlayer);
+  for (var i = 1; i < botQuantity + 1; i++) {
+    const newBot = new player(`bot${i}` as string, i, true);
+    players.push(newBot);
+  }
+  (buttonDraw as HTMLInputElement).disabled = false;
+  (buttonEndTurn as HTMLInputElement).hidden = true;
+
+  setHidden(".start-container", true);
+  setHidden(".game-container", false);
+  setHidden(".form-container", true);
+  setHidden(".message-container", true);
+  currentPlayer = players[0];
+
+  initializeGameContainerForUser(currentPlayer);
+
+  buttonDraw.addEventListener("click", methodToGetCardForGroupGame);
+  buttonEndTurn.addEventListener("click", endTurnForPlayWithBots);
+};
 
 function initializeGameContainerForUser(player: player) {
   document.querySelector(".score-number").innerHTML = player.score.toString();
@@ -443,11 +461,11 @@ function showResults() {
       }
     });
   }
-  console.log(players);
+
   players = players.sort((a, b) => {
     return a.userState > b.userState ? -1 : 1;
   });
-  console.log(players);
+
   for (let i = 0; i < players.length; i++) {
     var newElement = document.createElement("span");
     newElement.className = "player-result";
@@ -478,9 +496,14 @@ buttonBacks.forEach((buttonBack) => {
     removeElements(document.querySelectorAll(".player-result"));
 
     clearUsernamesForm();
+
+    removedEventListenersFromButtons();
   });
 });
-
+function removedEventListenersFromButtons() {
+  buttonDraw.removeEventListener("click", methodToGetCardForSingleGame, false);
+  buttonDraw.removeEventListener("click", methodToGetCardForGroupGame, false);
+}
 function clearUsernamesForm() {
   removeElements(form.querySelectorAll(".input-name"));
 
@@ -516,7 +539,7 @@ async function displayUserCard(player: player) {
     newImgElement.className = "card-img";
     document.getElementById("card-list").appendChild(newImgElement);
     if (i == player.cardList.length - 1) {
-      //dodaj animacje
+      //TODO add animations
     }
   }
 }
@@ -576,6 +599,22 @@ function getCardPointsForGame(value: string): number {
   return points;
 }
 
+class player {
+  constructor(name: string, id: number, isBot: boolean) {
+    this.id = id;
+    this.name = name;
+    this.score = 0;
+    this.cardList = new Array<card>(0);
+    this.userState = userStates.active;
+    this.isBot = isBot;
+  }
+  id: number;
+  name: string;
+  score: number;
+  cardList: Array<card>;
+  userState: userStates;
+  isBot: boolean;
+}
 interface deck {
   success: boolean;
   deck_id: string;
@@ -598,27 +637,9 @@ interface card {
   value: string;
   points: number;
 }
-
 interface images {
   png: string;
   svg: string;
-}
-
-class player {
-  constructor(name: string, id: number, isBot: boolean) {
-    this.id = id;
-    this.name = name;
-    this.score = 0;
-    this.cardList = new Array<card>(0);
-    this.userState = userStates.active;
-    this.isBot = isBot;
-  }
-  id: number;
-  name: string;
-  score: number;
-  cardList: Array<card>;
-  userState: userStates;
-  isBot: boolean;
 }
 
 enum userStates {
@@ -627,5 +648,4 @@ enum userStates {
   lose,
   won,
 }
-
 //TOdo ogarnac kod, readme, dwa asy = score 21, UI

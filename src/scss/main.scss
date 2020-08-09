@@ -4,6 +4,9 @@
 @import "modules/bot-game.scss";
 @import "modules/home.scss";
 
+@import "_normalize";
+@import "_variables";
+
 html {
   font-size: 16px;
   height: 100%;

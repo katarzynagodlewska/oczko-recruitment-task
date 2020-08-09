@@ -1,20 +1,73 @@
 {
-  "name": "oczko-recruitment-task",
+  "name": "wtf-gulp-starter",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "predeploy": "gulp build",
+    "deploy": "gh-pages -d dist -b master"
   },
+  "browserslist": [
+    "> 1%",
+    "ie >= 8",
+    "edge >= 15",
+    "ie_mob >= 10",
+    "ff >= 45",
+    "chrome >= 45",
+    "safari >= 7",
+    "opera >= 23",
+    "ios >= 7",
+    "android >= 4",
+    "bb >= 10"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maciejkorsan/wtf-gulp-starter.git"
+  },
+  "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@types/es6-promise": "^3.3.0"
+  "bugs": {
+    "url": "https://github.com/maciejkorsan/wtf-gulp-starter/issues"
   },
+  "homepage": "https://github.com/maciejkorsan/wtf-gulp-starter#readme",
   "devDependencies": {
-    "@types/jest": "^26.0.8",
+    "@babel/cli": "^7.7.7",
+    "@babel/core": "^7.7.7",
+    "@babel/polyfill": "^7.7.0",
+    "@babel/preset-env": "^7.7.7",
+    "@babel/register": "^7.7.7",
+    "@types/jest": "^26.0.9",
+    "autoprefixer": "^9.7.3",
+    "babel-loader": "^8.0.6",
+    "browser-sync": "^2.26.7",
+    "browserslist": "^4.14.0",
+    "gh-pages": "^2.1.1",
+    "gulp": "^4.0.0",
+    "gulp-autoprefixer": "^6.1.0",
+    "gulp-babel": "^8.0.0",
+    "gulp-notify": "^3.2.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-postcss": "^8.0.0",
+    "gulp-sass": "^4.0.2",
+    "gulp-sourcemaps": "^2.6.5",
+    "gulp-typescript": "^6.0.0-alpha.1",
     "jest": "^26.2.2",
+    "node-sass": "^4.13.0",
+    "through2": "^3.0.1",
     "ts-jest": "^26.1.4",
-    "typescript": "^3.9.7"
+    "typescript": "^3.9.7",
+    "vinyl-named": "^1.1.0",
+    "webpack": "^4.41.5",
+    "webpack-sources": "^1.4.3",
+    "webpack-stream": "^5.2.1"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ]
+  },
+  "dependencies": {
+    "require": "^2.4.20"
   }
 }
