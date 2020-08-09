@@ -1,3 +1,5 @@
+@import "../variables";
+
 .deck-svg {
   display: block;
   height: 10rem;
@@ -5,6 +7,10 @@
   position: absolute;
   top: 13%;
   right: 5%;
+
+  @media (max-width: $mobile) {
+    height: 7rem;
+  }
 }
 .card-list {
   display: flex;
@@ -20,6 +26,7 @@
   height: auto;
   object-fit: contain;
 }
+
 .game-button {
   background-color: whitesmoke;
   font-family: "Roboto", sans-serif;
@@ -37,6 +44,7 @@
     border: none;
   }
 }
+
 .game-container {
   display: flex;
   justify-content: center;
@@ -67,6 +75,7 @@
   font-size: 1.5rem;
   color: white;
 }
+
 .score-number {
   margin-left: 4px;
 }

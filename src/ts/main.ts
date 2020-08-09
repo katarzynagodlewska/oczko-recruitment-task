@@ -109,7 +109,8 @@ formContainerBot.onsubmit = async (e) => {
   deck = await fetchData<deck>(
     "https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1"
   );
-  var realPlayer = new player("realPlayer", 0, false);
+
+  var realPlayer = new player("You", 0, false);
   players.push(realPlayer);
   for (var i = 1; i < botQuantity + 1; i++) {
     const newBot = new player(`bot${i}` as string, i, true);
@@ -117,11 +118,13 @@ formContainerBot.onsubmit = async (e) => {
   }
   (buttonDraw as HTMLInputElement).disabled = false;
   (buttonEndTurn as HTMLInputElement).hidden = true;
+  (buttonEndTurn as HTMLInputElement).disabled = false;
 
   setHidden(".start-container", true);
   setHidden(".game-container", false);
   setHidden(".form-container", true);
   setHidden(".message-container", true);
+
   currentPlayer = players[0];
 
   initializeGameContainerForUser(currentPlayer);
@@ -160,26 +163,7 @@ buttonPlay.addEventListener("click", async (e) => {
 async function methodToGetCardForSingleGame() {
   (buttonDraw as HTMLInputElement).disabled = true;
 
-  let howManyCardsUserShouldGet = currentPlayer.cardList.length == 0 ? 2 : 1;
-
-  let drawCard = await fetchData<drawCard>(
-    `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=${howManyCardsUserShouldGet}`
-  );
-
-  if (currentPlayer.cardList == null) {
-    currentPlayer.cardList = new Array<card>(0);
-  }
-
-  drawCard.cards.forEach((element) => {
-    element.points = getCardPointsForGame(element.value);
-    currentPlayer.cardList.push(element);
-  });
-
-  currentPlayer.score = currentPlayer.cardList
-    .map((a) => a.points)
-    .reduce(function (a, b) {
-      return a + b;
-    });
+  currentPlayer = await drawCardProcessingForPlayer(currentPlayer);
 
   initializeGameContainerForUser(currentPlayer);
 
@@ -206,24 +190,7 @@ async function methodToGetCardForSingleGame() {
 async function methodToGetCardForGroupGame() {
   (buttonDraw as HTMLInputElement).disabled = true;
 
-  let howManyCardsUserShouldGet = currentPlayer.cardList.length == 0 ? 2 : 1;
-  let drawCard = await fetchData<drawCard>(
-    `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=${howManyCardsUserShouldGet}`
-  );
-  if (currentPlayer.cardList == null) {
-    currentPlayer.cardList = new Array<card>(0);
-  }
-
-  drawCard.cards.forEach((element) => {
-    element.points = getCardPointsForGame(element.value);
-    currentPlayer.cardList.push(element);
-  });
-
-  currentPlayer.score = currentPlayer.cardList
-    .map((a) => a.points)
-    .reduce(function (a, b) {
-      return a + b;
-    });
+  currentPlayer = await drawCardProcessingForPlayer(currentPlayer);
 
   initializeGameContainerForUser(currentPlayer);
   setHidden(".message-container", true);
@@ -261,13 +228,13 @@ buttonStop.addEventListener("click", (e) => {
 });
 
 async function endTurnForPlayWithBots() {
-  console.log("test");
   if (currentPlayer.userState == userStates.won) {
     showResults();
   } else if (
     currentPlayer.userState == userStates.waiting ||
     currentPlayer.userState == userStates.lose
   ) {
+    (buttonEndTurn as HTMLInputElement).disabled = true;
     while (
       players.some((player) => {
         return (
@@ -312,8 +279,6 @@ async function endTurnForPlayWithBots() {
             currentBot.userState = userStates.lose;
           }
         }
-
-        console.log(currentBot);
       }
     }
 
@@ -327,25 +292,7 @@ async function endTurnForPlayWithBots() {
       ) {
         continue;
       }
-
-      let howManyCardsUserShouldGet = currentBot.cardList.length == 0 ? 2 : 1;
-      let drawCard = await fetchData<drawCard>(
-        `https://deckofcardsapi.com/api/deck/${deck.deck_id}/draw/?count=${howManyCardsUserShouldGet}`
-      );
-      if (currentBot.cardList == null) {
-        currentBot.cardList = new Array<card>(0);
-      }
-
-      drawCard.cards.forEach((element) => {
-        element.points = getCardPointsForGame(element.value);
-        currentBot.cardList.push(element);
-      });
-
-      currentBot.score = currentBot.cardList
-        .map((a) => a.points)
-        .reduce(function (a, b) {
-          return a + b;
-        });
+      currentBot = await drawCardProcessingForPlayer(currentBot);
 
       if (currentBot.score == 20) {
         console.log("bot is waiting");
@@ -355,8 +302,6 @@ async function endTurnForPlayWithBots() {
 
       if (currentBot.score == 21) {
         currentBot.userState = userStates.won;
-        console.log(currentBot);
-        console.log("bot won");
         showResults();
         return;
       } else if (currentBot.score > 21) {
@@ -365,20 +310,15 @@ async function endTurnForPlayWithBots() {
             return card.value == "ACE";
           }).length == 2
         ) {
-          console.log(currentBot);
-
-          console.log("bot won by ace");
           currentBot.score = 21;
           currentBot.userState = userStates.won;
           showResults();
           return;
         } else {
           currentBot.userState = userStates.lose;
-          console.log("bot lose");
           continue;
         }
       }
-      console.log(currentBot);
     }
 
     (buttonDraw as HTMLInputElement).disabled = false;
@@ -569,9 +509,6 @@ async function displayUserCard(player: player) {
 }
 
 function finishGame(message: string) {
-  currentPlayer = null;
-  deck = null;
-
   setHidden(".message-container", false);
 
   document.querySelector(".message").innerHTML = message;

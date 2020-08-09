@@ -7,19 +7,6 @@
     "predeploy": "gulp build",
     "deploy": "gh-pages -d dist -b master"
   },
-  "browserslist": [
-    "> 1%",
-    "ie >= 8",
-    "edge >= 15",
-    "ie_mob >= 10",
-    "ff >= 45",
-    "chrome >= 45",
-    "safari >= 7",
-    "opera >= 23",
-    "ios >= 7",
-    "android >= 4",
-    "bb >= 10"
-  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/maciejkorsan/wtf-gulp-starter.git"
@@ -67,7 +54,5 @@
       "@babel/preset-env"
     ]
   },
-  "dependencies": {
-    "require": "^2.4.20"
-  }
+  "dependencies": {}
 }
