@@ -471,7 +471,14 @@ function showResults() {
     newElement.className = "player-result";
     newElement.innerHTML = `  ${players[i].name} || ${players[i].score} || ${players[i].userState}  `;
 
-    document.querySelector(".results-container").appendChild(newElement);
+    document
+      .querySelector(".results-container")
+      .insertBefore(
+        newElement,
+        document
+          .querySelector(".results-container")
+          .querySelector(".button-back")
+      );
   }
 }
 
