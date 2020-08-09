@@ -4,7 +4,7 @@
   align-self: start;
   justify-content: space-around;
 
-  background-color: whitesmoke;
+  background-color: $whitesmoke;
   font-family: "Roboto", sans-serif;
   font-weight: 500;
   font-size: 1rem;
@@ -21,7 +21,7 @@
 }
 
 .button-submit {
-  background-color: whitesmoke;
+  background-color: $whitesmoke;
   font-family: "Roboto", sans-serif;
   font-weight: 500;
   font-size: 1rem;
@@ -58,7 +58,7 @@
   display: flex;
   justify-content: start;
   font-size: 1.5rem;
-  color: white;
+  color: $white;
   &__field {
     margin-left: 1rem;
   }
@@ -74,6 +74,6 @@
 
 .usernames__title {
   font-size: 1.5rem;
-  color: white;
+  color: $white;
   margin: 1rem 1rem 0 1rem;
 }

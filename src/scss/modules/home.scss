@@ -1,5 +1,5 @@
 .home-button {
-  background-color: whitesmoke;
+  background-color: $whitesmoke;
   font-family: "Roboto", sans-serif;
   font-weight: 700;
   font-size: 1.2rem;
@@ -12,8 +12,8 @@
   outline: none;
   transition: background-color 0.5s;
   &:hover {
-    background-color: rgb(7, 58, 7);
-    color: white;
+    background-color: $dark-green;
+    color: $white;
   }
   &:active {
     border: none;

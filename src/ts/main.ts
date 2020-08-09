@@ -7,16 +7,6 @@ const buttonSubmit = document.querySelector(".button-submit");
 const buttonStop = document.querySelector(".button-stop");
 const buttonEndTurn = document.querySelector(".button-end-turn");
 const buttonPlayWithBot = document.querySelector(".button-play-bot");
-//import * as models from "./models";
-// type deckType = models.Models.deck;
-// const userStates = models.Models.userStates;
-// type drawCardType = models.Models.drawCard;
-// type imagesType = models.Models.images;
-// type cardType = models.Models.card;
-// type userStates = models.Models.userStates;
-// // var playerType = require("./classes");
-
-// // import player from "./classes";
 
 const form: HTMLFormElement = document.querySelector(".username-form");
 const formContainerBot: HTMLFormElement = document.querySelector(".form-bot");
@@ -37,10 +27,9 @@ form.onsubmit = (e) => {
   var lastUserName = userNames[userNames.length - 1];
 
   if (lastUserName.toString() == "") {
-    alert("username should be set");
+    alert("Username should be set");
     return;
   }
-  //newElement.disabled = true;
 
   if (formData.getAll("textInput").length == 4) {
     setHidden(".button-submit", true);
@@ -56,9 +45,16 @@ form.onsubmit = (e) => {
 };
 
 startGameForGroup.addEventListener("click", async (e) => {
-  let formData1 = new FormData(form);
-  let userNamesList = formData1.getAll("textInput");
-
+  let dataForm = new FormData(form);
+  let userNamesList = dataForm.getAll("textInput");
+  if (
+    userNamesList.filter((username) => {
+      return username != "";
+    }).length < 2
+  ) {
+    alert("Number of players must be at least 2");
+    return;
+  }
   if (
     userNamesList.filter((username) => {
       return username != "";
@@ -105,6 +101,11 @@ formContainerBot.onsubmit = async (e) => {
     formData.get("input-quantity") as string
   );
 
+  if (Number.isNaN(botQuantity)) {
+    alert("Bot quantity was not set");
+    return;
+  }
+
   setHidden(".form-container-bot", true);
   deck = await fetchData<deck>(
     "https://deckofcardsapi.com/api/deck/new/draw/?deck_count=1"
@@ -113,7 +114,7 @@ formContainerBot.onsubmit = async (e) => {
   var realPlayer = new player("You", 0, false);
   players.push(realPlayer);
   for (var i = 1; i < botQuantity + 1; i++) {
-    const newBot = new player(`bot${i}` as string, i, true);
+    const newBot = new player(`Player_${i}` as string, i, true);
     players.push(newBot);
   }
   (buttonDraw as HTMLInputElement).disabled = false;
@@ -418,9 +419,13 @@ function showResults() {
   });
 
   for (let i = 0; i < players.length; i++) {
-    var newElement = document.createElement("span");
+    var newElement = document.createElement("p");
     newElement.className = "player-result";
-    newElement.innerHTML = `  ${players[i].name} || ${players[i].score} || ${players[i].userState}  `;
+    newElement.innerHTML = `${players[i].name}: ${players[i].score} `;
+
+    if (players[i].userState == userStates.won) {
+      newElement.innerHTML += "🏆";
+    }
 
     document
       .querySelector(".results-container")
@@ -450,6 +455,8 @@ buttonBacks.forEach((buttonBack) => {
     setHidden(".results-container", true);
     setHidden(".form-container-bot", true);
     setHidden(".button-submit", false);
+
+    (document.querySelector(".input-quantity") as HTMLInputElement).value = "";
 
     removeElements(document.querySelectorAll(".card-img"));
     removeElements(document.querySelectorAll(".player-result"));
@@ -488,7 +495,6 @@ function setHidden(name: string, hidden: boolean) {
       "style"
     );
   }
-  //  (document.querySelector(name) as HTMLScriptElement).hidden = hidden;
 }
 
 function removeElements(elements: NodeListOf<Element>) {
@@ -504,7 +510,13 @@ async function displayUserCard(player: player) {
     newImgElement.className = "card-img";
     document.getElementById("card-list").appendChild(newImgElement);
     if (i == player.cardList.length - 1) {
-      //TODO add animations
+      newImgElement.animate(
+        [{ transform: "translateY(-300px)" }, { transform: "translateY(0px)" }],
+        {
+          duration: 500,
+          iterations: 1,
+        }
+      );
     }
   }
 }
