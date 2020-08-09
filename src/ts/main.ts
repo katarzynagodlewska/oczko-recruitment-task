@@ -184,6 +184,7 @@ async function methodToGetCardForSingleGame() {
       return;
     }
   }
+
   (buttonDraw as HTMLInputElement).disabled = false;
 }
 
@@ -609,4 +610,3 @@ enum userStates {
   lose,
   won,
 }
-//TOdo ogarnac kod, readme, dwa asy = score 21, UI
