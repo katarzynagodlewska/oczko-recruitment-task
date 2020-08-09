@@ -1,0 +1,15 @@
+.form-bot__title {
+  color: white;
+  font-weight: 500;
+  font-size: 1rem;
+  margin-left: 1rem;
+}
+
+.input-quantity {
+  font-family: "Roboto", sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  height: 2rem;
+  width: 4rem;
+  margin: 1rem;
+}

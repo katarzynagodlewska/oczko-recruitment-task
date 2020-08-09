@@ -1,4 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap");
+@import "modules/game-view.scss";
+@import "modules/group-game.scss";
+@import "modules/bot-game.scss";
+@import "modules/home.scss";
 
 html {
   font-size: 16px;
@@ -17,158 +21,10 @@ body {
   padding: 16px;
 }
 
-.button-back {
-  background-color: whitesmoke;
-  font-family: "Roboto", sans-serif;
-  font-weight: 500;
-  font-size: 1rem;
-  height: 2rem;
-  width: 4rem;
-  border-top: none;
-  border-left: none;
-  border-radius: 3px;
-  outline: none;
-  margin: 1rem;
-  &:active {
-    border: none;
-  }
-}
-
-.button-start-play-group {
-  background-color: whitesmoke;
-  font-family: "Roboto", sans-serif;
-  font-weight: 500;
-  font-size: 1rem;
-  height: 2.5rem;
-  width: 7rem;
-  border-top: none;
-  border-left: none;
-  border-radius: 3px;
-  outline: none;
-  margin: 1rem;
-  &:active {
-    border: none;
-  }
-}
-
-.button-submit {
-  background-color: whitesmoke;
-  font-family: "Roboto", sans-serif;
-  font-weight: 500;
-  font-size: 1rem;
-  height: 2rem;
-}
-.deck-svg {
-  display: block;
-  height: 10rem;
-  margin: 0.5rem;
-  position: absolute;
-  top: 15%;
-  right: 5%;
-}
-.card-list {
-  display: flex;
-  flex-direction: row;
-  padding-left: 8rem;
-  height: 12rem;
-}
-
-.card-img {
-  display: flex;
-  margin-left: -10rem;
-  max-width: 100%;
-  height: auto;
-  object-fit: contain;
-}
-
-.form-container {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-}
-
-.form-bot {
-  &__title {
-    color: white;
-    font-weight: 500;
-    font-size: 1rem;
-    margin-left: 1rem;
-  }
-}
-
-.game-container {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  &__buttons {
-    display: flex;
-    justify-content: center;
-  }
-}
-
-.game-button {
-  background-color: whitesmoke;
-  font-family: "Roboto", sans-serif;
-  font-weight: 500;
-  font-size: 1rem;
-  min-height: 2.5rem;
-  width: 4rem;
-  border-top: none;
-  border-left: none;
-  border-radius: 3px;
-  outline: none;
-  margin: 0.5rem;
-  justify-content: center;
-  &:active {
-    border: none;
-  }
-}
-
-.home-button {
-  background-color: whitesmoke;
-  font-family: "Roboto", sans-serif;
-  font-weight: 700;
-  font-size: 1.2rem;
-  margin: 0.5rem;
-  min-height: 5rem;
-  width: 9rem;
-  border-top: none;
-  border-left: none;
-  border-radius: 3px;
-  outline: none;
-  transition: background-color 0.5s;
-  &:hover {
-    background-color: rgb(7, 58, 7);
-    color: white;
-  }
-  &:active {
-    border: none;
-  }
-}
-.input-quantity {
-  font-family: "Roboto", sans-serif;
-  font-weight: 500;
-  font-size: 1rem;
-  height: 2rem;
-  width: 4rem;
-  margin: 1rem;
-}
-
 .main {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-.message-container {
-  display: flex;
-  width: 6rem;
-  padding: 1rem;
-  border-radius: 3px;
-  color: white;
-  background-color: rgb(7, 58, 7);
-  margin: 0 0 1rem 1rem;
-  font-size: 1.5rem;
-  justify-content: center;
 }
 
 .patterns {
@@ -194,21 +50,6 @@ body {
   height: 2rem;
   background-repeat: repeat-x;
 }
-.score {
-  display: flex;
-  justify-content: start;
-  margin: 1rem;
-  font-size: 1.5rem;
-  color: white;
-}
-.score-number {
-  margin-left: 4px;
-}
-.start-container {
-  display: flex;
-  justify-content: center;
-  padding: 8rem;
-}
 
 .title {
   color: rgb(7, 58, 7);
@@ -220,29 +61,4 @@ body {
   font-size: 4rem;
   font-weight: 500;
   margin-top: -8px;
-}
-.username {
-  display: flex;
-  justify-content: start;
-  font-size: 1.5rem;
-  color: white;
-  &__field {
-    margin-left: 8px;
-  }
-}
-
-.username-form {
-  display: flex;
-  justify-content: start;
-  flex-direction: column;
-  max-width: 10rem;
-  margin: 1rem;
-}
-
-.usernames__title {
-  display: flex;
-  justify-content: start;
-  font-size: 1.5rem;
-  color: white;
-  margin: 1rem;
 }

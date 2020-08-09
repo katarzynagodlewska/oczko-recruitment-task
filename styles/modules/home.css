@@ -1,0 +1,29 @@
+.home-button {
+  background-color: whitesmoke;
+  font-family: "Roboto", sans-serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+  margin: 0.5rem;
+  min-height: 5rem;
+  width: 9rem;
+  border-top: none;
+  border-left: none;
+  border-radius: 3px;
+  outline: none;
+  transition: background-color 0.5s;
+}
+
+.home-button:hover {
+  background-color: #073a07;
+  color: white;
+}
+
+.home-button:active {
+  border: none;
+}
+
+.start-container {
+  display: flex;
+  justify-content: center;
+  padding: 8rem;
+}

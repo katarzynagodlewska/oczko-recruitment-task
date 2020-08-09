@@ -443,7 +443,11 @@ function showResults() {
       }
     });
   }
-
+  console.log(players);
+  players = players.sort((a, b) => {
+    return a.userState > b.userState ? -1 : 1;
+  });
+  console.log(players);
   for (let i = 0; i < players.length; i++) {
     var newElement = document.createElement("span");
     newElement.className = "player-result";
